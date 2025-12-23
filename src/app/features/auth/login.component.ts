@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { CustomerService } from '../../core/customer/customer.service';
+import { User } from '../../shared/models/user.model';
+import { firstValueFrom, take } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +20,13 @@ export class LoginComponent {
   form!: ReturnType<FormBuilder['group']>;
   confirmationMessage = '';
 
-  constructor(private readonly fb: FormBuilder, private readonly authService: AuthService) {
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly customerService: CustomerService
+  ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['']
@@ -49,7 +59,7 @@ export class LoginComponent {
     this.status = 'sending';
     this.authService
       .signInWithGoogle()
-      .then(() => (this.status = 'sent'))
+      .then((user) => this.handlePostLogin(user))
       .catch(() => {
         this.errorMessage = 'Google sign-in failed. Please try again.';
         this.status = 'error';
@@ -75,12 +85,29 @@ export class LoginComponent {
 
     this.passwordStatus = 'working';
     try {
-      await this.authService.signInWithPassword(this.form.value.email ?? '', this.form.value.password ?? '');
+      const user = await this.authService.signInWithPassword(this.form.value.email ?? '', this.form.value.password ?? '');
       this.passwordStatus = 'success';
+      await this.handlePostLogin(user);
     } catch (error) {
       console.error(error);
       this.errorMessage = 'Email/password login failed.';
       this.passwordStatus = 'error';
     }
+  }
+
+  private async handlePostLogin(user: User | null): Promise<void> {
+    this.status = 'sent';
+    if (!user) return;
+
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/products';
+    const profile = await firstValueFrom(this.customerService.getCustomerById(user.id).pipe(take(1)));
+    const hasCompleteProfile = this.customerService.isProfileComplete(profile);
+
+    if (!hasCompleteProfile) {
+      await this.router.navigate(['/account'], { queryParams: { returnUrl } });
+      return;
+    }
+
+    await this.router.navigateByUrl(returnUrl);
   }
 }

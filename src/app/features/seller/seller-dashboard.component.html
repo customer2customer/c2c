@@ -26,25 +26,53 @@
   </section>
 
   <section class="table" *ngIf="products$ | async as products">
-    <div class="table-row table-head">
-      <span>Name</span>
-      <span>Category</span>
-      <span>Price</span>
-      <span>Stock</span>
-      <span>Status</span>
-      <span>Actions</span>
-    </div>
-    <div class="table-row" *ngFor="let product of products; trackBy: trackByProductId">
-      <span>{{ product.productName }}</span>
-      <span>{{ product.category }}</span>
-      <span>₹{{ product.c2cPrice | number: '1.0-0' }}</span>
-      <span>{{ product.stock }}</span>
-      <span>{{ product.verificationStatus }} / {{ product.availabilityStatus }}</span>
-      <span class="actions">
-        <a class="secondary" [routerLink]="['/seller/edit', product.id]">Edit</a>
-        <button class="primary" type="button" (click)="deleteProduct(product.id)">Delete</button>
-      </span>
-    </div>
+    <ng-container *ngIf="verificationStatus$ | async as verificationMap">
+      <ng-container *ngIf="isAdmin$ | async as isAdmin">
+        <div class="table-row table-head" [class.admin-table]="isAdmin">
+          <span>Name</span>
+          <span>Category</span>
+          <span>Price</span>
+          <span>Stock</span>
+          <span *ngIf="isAdmin">Created by</span>
+          <span>Status</span>
+          <span>Actions</span>
+        </div>
+        <div class="table-row" *ngFor="let product of products; trackBy: trackByProductId" [class.admin-table]="isAdmin">
+          <span>
+            {{ product.productName }}
+            <small class="muted" *ngIf="product.sku">SKU: {{ product.sku }}</small>
+          </span>
+          <span>{{ product.category }}</span>
+          <span>₹{{ product.c2cPrice | number: '1.0-0' }}</span>
+          <span>{{ product.stock }}</span>
+          <span *ngIf="isAdmin" class="meta">
+            <strong>{{ product.createdByName || 'N/A' }}</strong>
+            <small class="muted">{{ product.createdByEmail || 'unknown' }}</small>
+          </span>
+          <span class="status">
+              <ng-container *ngIf="isAdmin; else readOnlyStatus">
+                <select
+                  [value]="product.verificationStatus"
+                (change)="onVerificationChange(product, $event)"
+              >
+                <option value="pending">Pending review</option>
+                <option value="verified">Verified</option>
+              </select>
+              <small class="muted">{{ product.availabilityStatus }}</small>
+              <small class="muted" *ngIf="verificationMap[product.id] === 'updating'">Saving…</small>
+              <small class="error" *ngIf="verificationMap[product.id] === 'error'">Update failed</small>
+            </ng-container>
+            <ng-template #readOnlyStatus>
+              {{ product.verificationStatus }} / {{ product.availabilityStatus }}
+            </ng-template>
+          </span>
+          <span class="actions">
+            <a class="secondary" [routerLink]="['/seller/edit', product.id]">Edit</a>
+            <button class="primary" type="button" (click)="deleteProduct(product.id)">Delete</button>
+          </span>
+        </div>
+      </ng-container>
+    </ng-container>
   </section>
 
   <section class="admin-tools" *ngIf="isAdmin$ | async">
