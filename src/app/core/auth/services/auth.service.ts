@@ -4,10 +4,16 @@ import {
   ActionCodeSettings,
   Auth,
   authState,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   isSignInWithEmailLink,
+  sendPasswordResetEmail,
   sendSignInLinkToEmail,
   signInWithEmailLink,
+  signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
+  updateProfile,
   User as FirebaseUser
 } from '@angular/fire/auth';
 import { Observable, map, shareReplay } from 'rxjs';
@@ -46,6 +52,28 @@ export class AuthService {
     });
   }
 
+  signInWithGoogle(): Promise<User> {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(this.auth, provider).then((credential) => this.mapFirebaseUser(credential.user)!);
+  }
+
+  async signUpWithPassword(email: string, password: string, displayName?: string): Promise<User> {
+    const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+    if (displayName) {
+      await updateProfile(credential.user, { displayName });
+    }
+    return this.mapFirebaseUser(credential.user)!;
+  }
+
+  async signInWithPassword(email: string, password: string): Promise<User> {
+    const credential = await signInWithEmailAndPassword(this.auth, email, password);
+    return this.mapFirebaseUser(credential.user)!;
+  }
+
+  resetPassword(email: string): Promise<void> {
+    return sendPasswordResetEmail(this.auth, email);
+  }
+
   getCurrentUser(): Observable<User | null> {
     return this.currentUser$;
   }
@@ -63,10 +91,15 @@ export class AuthService {
       return null;
     }
 
+    const providerId = firebaseUser.providerData[0]?.providerId ?? 'password';
+    const authProvider: User['authProvider'] =
+      providerId === 'google.com' ? 'google' : providerId === 'password' ? 'password' : 'emailLink';
+
     return {
       id: firebaseUser.uid,
       email: firebaseUser.email ?? '',
       name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'New User',
+      authProvider,
       userType: 'both',
       trustScore: 0,
       totalOrders: 0,

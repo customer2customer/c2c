@@ -19,13 +19,42 @@
       <span class="market">₹{{ product.marketPrice | number: '1.0-0' }}</span>
       <span class="discount">Save ₹{{ product.priceDiscount | number: '1.0-0' }}</span>
     </p>
+    <p class="availability" [class.preorder]="product.availabilityStatus === 'preorder'">
+      {{ availabilityMessage(product) }}
+    </p>
     <p class="description">{{ product.description }}</p>
-    <p class="seller">Seller: {{ product.sellerName }} ({{ product.sellerRating }}★)</p>
-    <p class="location">Location: {{ product.sellerLocation.city }}</p>
+
+    <section class="seller-block">
+      <h3>Seller & contact</h3>
+      <p class="seller">{{ product.sellerName }} • {{ product.sellerRating }}★ ({{ product.reviewCount }} reviews)</p>
+      <p class="location">{{ product.sellerLocation.address }}, {{ product.sellerLocation.city }}</p>
+      <p class="contact">Call {{ product.sellerContact.phone }} <span *ngIf="product.sellerContact.email">• {{ product.sellerContact.email }}</span></p>
+    </section>
+
+    <section class="delivery">
+      <h3>Delivery options</h3>
+      <ul>
+        <li *ngIf="product.deliveryOptions.courier">Courier or partner delivery available</li>
+        <li *ngIf="product.deliveryOptions.directVisit">Pickup or direct visit to the seller</li>
+        <li *ngIf="product.availabilityStatus === 'preorder'">Preorder window is open for upcoming batches</li>
+      </ul>
+    </section>
+
+    <section *ngIf="product.videoUrl" class="video">
+      <h3>How this product is made</h3>
+      <iframe
+        [src]="product.videoUrl | safeUrl"
+        title="Product making video"
+        loading="lazy"
+        allowfullscreen
+      ></iframe>
+    </section>
 
     <div class="actions">
-      <button class="primary" (click)="buyNow(product)">Buy Now</button>
-      <button class="secondary" (click)="router.navigate(['/'])">Back to listings</button>
+      <button class="primary" (click)="buyNow(product)">
+        {{ product.availabilityStatus === 'preorder' ? 'Preorder now' : 'Buy Now' }}
+      </button>
+      <button class="secondary" (click)="router.navigate(['/products'])">Back to listings</button>
     </div>
   </div>
 </section>

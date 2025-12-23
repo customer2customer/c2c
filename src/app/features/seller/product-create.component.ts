@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/services/auth.service';
-import { ProductCategory } from '../../shared/models/product.model';
+import { firstValueFrom } from 'rxjs';
+import { Product, ProductCategory } from '../../shared/models/product.model';
 import { ProductService } from '../products/services/product.service';
 
 @Component({
@@ -32,7 +33,10 @@ export class ProductCreateComponent {
       c2cPrice: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
       courier: [true],
-      directVisit: [true]
+      directVisit: [true],
+      videoUrl: [''],
+      hoverMedia: [''],
+      isPreorderAvailable: [false]
     });
   }
 
@@ -45,9 +49,11 @@ export class ProductCreateComponent {
     this.status = 'saving';
     const value = this.form.value;
     const discount = (value.marketPrice ?? 0) - (value.c2cPrice ?? 0);
+    const availabilityStatus = (value.stock ?? 0) > 0 ? 'inStock' : 'preorder';
 
-    this.authService.getCurrentUser().subscribe((user) => {
-      const payload = {
+    firstValueFrom(this.authService.getCurrentUser()).then((user) => {
+      const payload: Product = {
+        id: '',
         productName: value.productName ?? '',
         description: value.description ?? '',
         category: (value.category as ProductCategory) ?? 'vegetables',
@@ -61,18 +67,31 @@ export class ProductCreateComponent {
         sellerName: user?.name ?? 'Current Seller',
         sellerRating: 4.5,
         reviewCount: 0,
+        sellerContact: { phone: user?.phone ?? '+91-99999-11111', email: user?.email ?? '' },
         sellerLocation: { address: user?.location?.address ?? '', city: user?.location?.city ?? '' },
         deliveryOptions: { courier: Boolean(value.courier), directVisit: Boolean(value.directVisit) },
         availableDates: [],
         upcomingScheduled: [],
         isActive: true,
+        availabilityStatus,
+        isPreorderAvailable: Boolean(value.isPreorderAvailable),
+        videoUrl: value.videoUrl ?? undefined,
+        hoverMedia: value.hoverMedia ?? undefined,
+        verificationStatus: 'verified',
+        createdById: user?.id ?? 'unknown',
+        createdByEmail: user?.email ?? 'unknown@c2c.local',
+        createdByName: user?.name ?? 'Current Seller',
         createdAt: new Date(),
         updatedAt: new Date()
       };
 
-      console.info('Product saved placeholder', payload);
-      this.status = 'success';
-      this.router.navigate(['/seller']);
+      this.productService
+        .createProduct(payload)
+        .then(() => {
+          this.status = 'success';
+          this.router.navigate(['/seller']);
+        })
+        .catch(() => (this.status = 'error'));
     });
   }
 }

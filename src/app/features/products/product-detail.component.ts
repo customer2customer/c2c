@@ -37,4 +37,14 @@ export class ProductDetailComponent {
       }
     });
   }
+
+  availabilityMessage(product: Product): string {
+    if (product.availabilityStatus === 'inStock') {
+      return `${product.stock} available`;
+    }
+    if (product.availabilityStatus === 'preorder') {
+      return product.isPreorderAvailable ? 'Available for preorder now' : 'Preorder closed';
+    }
+    return 'Out of stock';
+  }
 }

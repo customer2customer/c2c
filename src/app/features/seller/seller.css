@@ -70,7 +70,7 @@ header {
 
 .table-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: 2fr repeat(4, 1fr) 1.6fr;
   padding: 12px;
   border-bottom: 1px solid #f3f4f6;
 }
@@ -104,4 +104,14 @@ header {
 .actions {
   display: flex;
   gap: 8px;
+}
+
+.table-row .actions {
+  justify-content: flex-end;
+}
+
+.hint {
+  color: #475569;
+  font-size: 13px;
+  margin: 0;
 }

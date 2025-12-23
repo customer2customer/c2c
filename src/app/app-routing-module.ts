@@ -3,12 +3,18 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/auth/services/auth.guard';
 
 const routes: Routes = [
-  { path: '', loadChildren: () => import('./features/home/home.module').then((m) => m.HomeModule) },
+  { path: '', redirectTo: 'products', pathMatch: 'full' },
   {
     path: 'products',
     loadChildren: () => import('./features/products/products.module').then((m) => m.ProductsModule)
   },
+  { path: 'about', loadChildren: () => import('./features/home/home.module').then((m) => m.HomeModule) },
   { path: 'auth', loadChildren: () => import('./features/auth/auth.module').then((m) => m.AuthModule) },
+  {
+    path: 'account',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./features/account/account.module').then((m) => m.AccountModule)
+  },
   {
     path: 'seller',
     canActivate: [AuthGuard],
