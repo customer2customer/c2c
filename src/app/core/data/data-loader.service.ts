@@ -1,5 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Firestore, Timestamp, collection, collectionData, deleteDoc, doc, DocumentData, getDocs, setDoc } from '@angular/fire/firestore';
+import {
+  Firestore,
+  Timestamp,
+  collection,
+  deleteDoc,
+  doc,
+  DocumentData,
+  getDocs,
+  onSnapshot,
+  query,
+  setDoc,
+  where
+} from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { Product, VerificationStatus } from '../../shared/models/product.model';
 import { User } from '../../shared/models/user.model';
@@ -7,6 +19,7 @@ import { MOCK_PRODUCTS, MOCK_USERS } from './mock-data';
 
 @Injectable({ providedIn: 'root' })
 export class DataLoaderService {
+  private readonly products$ = new BehaviorSubject<Product[]>([]);
   private readonly users$ = new BehaviorSubject<User[]>(MOCK_USERS);
 
   private readonly generateId = (): string => {
@@ -16,20 +29,31 @@ export class DataLoaderService {
     return `product-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   };
 
-  constructor(private readonly firestore: Firestore) {}
+  constructor(private readonly firestore: Firestore) {
+    const productsQuery = query(
+      collection(this.firestore, 'products'),
+      where('isActive', '==', true),
+      where('verificationStatus', '==', 'verified')
+    );
+
+    onSnapshot(
+      productsQuery,
+      (snapshot) => {
+        const products: Product[] = [];
+        snapshot.forEach((doc) => {
+          products.push(this.normalizeProduct({ id: doc.id, ...doc.data() }));
+        });
+        this.products$.next(products);
+      },
+      (error) => {
+        console.error('Failed to load products from Firestore:', error);
+        this.products$.next([]);
+      }
+    );
+  }
 
   getProducts(): Observable<Product[]> {
-    const productsRef = collection(this.firestore, 'products');
-
-    return collectionData(productsRef, { idField: 'id' }).pipe(
-      map((docs) =>
-        docs.map((doc) => this.normalizeProduct(doc as Partial<Product> & DocumentData))
-      ),
-      catchError((error) => {
-        console.error('Failed to load products from Firestore:', error);
-        return of([]);
-      })
-    );
+    return this.products$.asObservable();
   }
 
   loadSampleProducts(): Observable<void> {
