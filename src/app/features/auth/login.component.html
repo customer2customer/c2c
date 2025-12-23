@@ -1,0 +1,15 @@
+<section class="auth-card">
+  <h1>Login with email</h1>
+  <p>We will send you a passwordless magic link.</p>
+
+  <form [formGroup]="form" (ngSubmit)="sendLink()" novalidate>
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" placeholder="you@example.com" />
+    <p class="error" *ngIf="form.controls['email'].invalid && form.controls['email'].touched">Enter a valid email.</p>
+
+    <button type="submit" [disabled]="status === 'sending'">Send Magic Link</button>
+  </form>
+
+  <p *ngIf="status === 'sent'" class="success">Check your email for the login link.</p>
+  <p *ngIf="status === 'error'" class="error">{{ errorMessage }}</p>
+</section>

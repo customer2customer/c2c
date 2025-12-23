@@ -1,0 +1,107 @@
+.seller {
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow {
+  color: #00796b;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.primary,
+.secondary {
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.primary {
+  background: #00796b;
+  color: #fff;
+}
+
+.secondary {
+  border-color: #d1d5db;
+  color: #111827;
+  background: #fff;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.stats div {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.label {
+  color: #6b7280;
+}
+
+.value {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.table {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.table-head {
+  background: #f9fafb;
+  font-weight: 700;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.form-grid label {
+  font-weight: 600;
+}
+
+.form-grid input,
+.form-grid textarea,
+.form-grid select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}

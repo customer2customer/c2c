@@ -1,0 +1,6 @@
+<section class="auth-card">
+  <h1>Verifying your sign-in link</h1>
+  <p *ngIf="status === 'verifying'">Completing sign-in…</p>
+  <p *ngIf="status === 'success'" class="success">Signed in! Redirecting you to your destination.</p>
+  <p *ngIf="status === 'error'" class="error">{{ errorMessage }}</p>
+</section>

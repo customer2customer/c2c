@@ -1,0 +1,64 @@
+.hero {
+  padding: 40px 24px;
+  display: grid;
+  gap: 24px;
+}
+
+.copy h1 {
+  font-size: 32px;
+  margin: 12px 0;
+}
+
+.eyebrow {
+  color: #00796b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.lead {
+  color: #4b5563;
+  max-width: 700px;
+}
+
+.cta {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.primary {
+  background: #00796b;
+  color: #fff;
+}
+
+.secondary {
+  border-color: #d1d5db;
+  color: #111827;
+  background: #fff;
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.pillars div {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}

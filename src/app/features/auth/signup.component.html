@@ -1,0 +1,30 @@
+<section class="auth-card">
+  <h1>Create your profile</h1>
+  <p>Tell us how you want to use the marketplace.</p>
+
+  <form [formGroup]="form" (ngSubmit)="saveProfile()" novalidate>
+    <label for="name">Full name</label>
+    <input id="name" type="text" formControlName="name" />
+    <p class="error" *ngIf="form.controls['name'].invalid && form.controls['name'].touched">Name is required.</p>
+
+    <label for="phone">Phone</label>
+    <input id="phone" type="tel" formControlName="phone" />
+    <p class="error" *ngIf="form.controls['phone'].invalid && form.controls['phone'].touched">Enter a 10-digit phone number.</p>
+
+    <label for="userType">User type</label>
+    <select id="userType" formControlName="userType">
+      <option *ngFor="let type of userTypes" [value]="type">{{ type }}</option>
+    </select>
+
+    <label for="address">Address</label>
+    <textarea id="address" rows="2" formControlName="address"></textarea>
+
+    <label for="city">City</label>
+    <input id="city" type="text" formControlName="city" />
+
+    <button type="submit" [disabled]="status === 'saving'">Create Profile</button>
+  </form>
+
+  <p *ngIf="status === 'success'" class="success">Profile saved. You can start using the marketplace.</p>
+  <p *ngIf="status === 'error'" class="error">Could not save profile right now.</p>
+</section>
