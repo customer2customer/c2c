@@ -1,6 +1,14 @@
 <section class="detail" *ngIf="product$ | async as product; else notFound">
   <div class="gallery">
-    <img [src]="product.images[0]" [alt]="product.productName" />
+    <img [src]="product.images[0] || 'https://placehold.co/800x600'" [alt]="product.productName" />
+    <div class="thumbs">
+      <img
+        *ngFor="let image of product.images"
+        [src]="image"
+        [alt]="product.productName"
+        loading="lazy"
+      />
+    </div>
   </div>
   <div class="info">
     <p class="badge">{{ product.category }}</p>

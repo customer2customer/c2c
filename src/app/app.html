@@ -1,11 +1,25 @@
 <div class="layout">
   <nav class="navbar">
-    <a class="brand" routerLink="/">C2C Marketplace</a>
+    <a class="brand" routerLink="/">
+      <span class="glyph">◎</span>
+      <div>
+        <strong>{{ title }}</strong>
+        <small>Powered by Firebase</small>
+      </div>
+    </a>
+
     <div class="links">
-      <a routerLink="/products">Products</a>
-      <a routerLink="/seller">Seller</a>
-      <a routerLink="/auth/login">Login</a>
+      <a routerLink="/products" routerLinkActive="active">Products</a>
+      <a routerLink="/seller" routerLinkActive="active">Seller</a>
     </div>
+
+    <div class="session" *ngIf="currentUser$ | async as user; else guest">
+      <button class="pill ghost" (click)="goToAccount()">Hi, {{ user.name }}</button>
+      <button class="pill" (click)="logout()">Logout</button>
+    </div>
+    <ng-template #guest>
+      <button class="pill" (click)="goToLogin()">Login / Sign up</button>
+    </ng-template>
   </nav>
 
   <main>
