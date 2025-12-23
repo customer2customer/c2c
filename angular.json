@@ -6,7 +6,6 @@
     "analytics": false
   },
   "newProjectRoot": "projects",
-  "defaultProject": "c2c",
   "projects": {
     "c2c": {
       "projectType": "application",
