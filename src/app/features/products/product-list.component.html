@@ -1,21 +1,44 @@
 <section class="page">
+  <div class="search-panel">
+    <div class="search-row">
+      <input
+        class="search-input"
+        type="search"
+        placeholder="Search products, descriptions, or sellers"
+        [(ngModel)]="search"
+        (ngModelChange)="applyFilters()"
+        aria-label="Search products"
+      />
+      <select class="sort-select" [(ngModel)]="selectedSort" (ngModelChange)="applyFilters()" aria-label="Sort products">
+        <option *ngFor="let option of sortOptions" [ngValue]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <div class="filters">
+      <span
+        *ngFor="let category of categories"
+        class="chip"
+        [class.active]="selectedCategories.includes(category)"
+        (click)="toggleCategory(category)"
+      >
+        {{ category }}
+      </span>
+    </div>
+  </div>
+
+  <section class="grid">
+    <app-product-card
+      *ngFor="let product of products; trackBy: trackByProductId"
+      [product]="product"
+      (click)="openProduct(product)"
+    ></app-product-card>
+  </section>
+
   <header class="hero">
     <div class="hero-copy">
       <p class="eyebrow">Community Marketplace</p>
       <h1>Fresh drops from trusted neighbors</h1>
       <p class="subtitle">Browse beautiful listings, filter what you love, and tap through delightful product cards.</p>
-      <div class="actions" *ngIf="filtersVisible">
-        <input
-          type="search"
-          placeholder="Search products, descriptions, or sellers"
-          [(ngModel)]="search"
-          (ngModelChange)="applyFilters()"
-          aria-label="Search products"
-        />
-        <select [(ngModel)]="selectedSort" (ngModelChange)="applyFilters()" aria-label="Sort products">
-          <option *ngFor="let option of sortOptions" [ngValue]="option.value">{{ option.label }}</option>
-        </select>
-      </div>
     </div>
     <div class="hero-visual">
       <div class="card-floating">
@@ -30,28 +53,4 @@
       />
     </div>
   </header>
-
-  <div class="filters" *ngIf="filtersVisible">
-    <span
-      *ngFor="let category of categories"
-      class="chip"
-      [class.active]="selectedCategories.includes(category)"
-      (click)="toggleCategory(category)"
-    >
-      {{ category }}
-    </span>
-  </div>
-
-  <button class="filter-toggle" type="button" (click)="toggleFilters()" [attr.aria-expanded]="filtersVisible">
-    <span class="icon">☰</span>
-    <span>{{ filtersVisible ? 'Hide filters' : 'Show filters & categories' }}</span>
-  </button>
-
-  <section class="grid">
-    <app-product-card
-      *ngFor="let product of products; trackBy: trackByProductId"
-      [product]="product"
-      (click)="openProduct(product)"
-    ></app-product-card>
-  </section>
 </section>

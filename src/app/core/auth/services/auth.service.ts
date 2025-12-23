@@ -83,7 +83,7 @@ export class AuthService {
   }
 
   logout(): Promise<void> {
-    return signOut(this.auth).then(() => this.router.navigate(['/']).then(() => undefined));
+    return signOut(this.auth).then(() => this.router.navigate(['/products']).then(() => undefined));
   }
 
   private mapFirebaseUser(firebaseUser: FirebaseUser | null): User | null {

@@ -50,6 +50,17 @@
       <input type="checkbox" formControlName="isActive" /> Active
     </label>
 
+    <ng-container *ngIf="canVerify; else viewStatus">
+      <label>Verification status</label>
+      <select formControlName="verificationStatus">
+        <option value="pending">Pending review</option>
+        <option value="verified">Verified</option>
+      </select>
+    </ng-container>
+    <ng-template #viewStatus>
+      <p class="hint">Current status: {{ form.value.verificationStatus }} (admin can verify products)</p>
+    </ng-template>
+
     <div class="actions">
       <button class="primary" type="submit">Save changes</button>
       <a class="secondary" routerLink="/seller">Cancel</a>

@@ -107,7 +107,11 @@ const sampleImages = [
   'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1502741509793-7b4394dc0e43?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1441123694162-e54a981ceba3?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=800&q=80'
+  'https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1505253758473-96b7015fcd40?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1506617420156-8e4536971650?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80'
 ];
 
 const hoverAnimations = [
@@ -133,7 +137,22 @@ const categoryNames: Record<ProductCategory, string[]> = {
     'Cold-Pressed Oils Pack',
     'Whole Grain Essentials',
     'Community Breakfast Box',
-    'Organic Pulses Mix'
+    'Organic Pulses Mix',
+    'Family Spice Rack',
+    'Heritage Rice Selection',
+    'Millet Superfood Pack',
+    'Jaggery & Sweeteners Combo',
+    'Local Honey Duo',
+    'Artisanal Pasta Kit',
+    'Farmhouse Soup Bundle',
+    'Weekend Brunch Crate',
+    'Community Snack Medley',
+    'Sprouted Lentil Mix',
+    'Hearty Broth Base',
+    'Immunity Booster Basket',
+    'Sunrise Tea & Coffee Set',
+    'Festive Baking Essentials',
+    'Zero-waste Grocery Starter'
   ],
   vegetables: [
     'Heirloom Tomatoes',
@@ -150,21 +169,53 @@ const categoryNames: Record<ProductCategory, string[]> = {
     'Zucchini Mix',
     'Okra Pack',
     'Mixed Salad Greens',
-    'Gourmet Mushrooms'
+    'Gourmet Mushrooms',
+    'Rainbow Bell Peppers',
+    'Curry Leaf Bunch',
+    'Herb Planter Kit',
+    'Seasonal Root Medley',
+    'Hydroponic Lettuce'
   ],
   clothing: [
     'Handwoven Cotton Scarf',
     'Indie Print T-shirt',
     'Eco Dye Kurta',
     'Recycled Fabric Tote',
-    'Organic Cotton Socks'
+    'Organic Cotton Socks',
+    'Block Print Bandana',
+    'Linen Summer Shirt',
+    'Upcycled Denim Apron',
+    'Handloom Throw',
+    'Minimalist Canvas Cap',
+    'Artisan Bead Bracelet',
+    'Kalamkari Wrap Skirt',
+    'Crochet Beanie',
+    'Everyday Bamboo Tee',
+    'Naturally Dyed Stole',
+    'Cotton Lounge Set',
+    'Statement Tote Bag',
+    'Heritage Weave Dupatta'
   ],
   services: [
     'Home Cleaning Session',
     'Community Handyman Slot',
     'Garden Care Visit',
     'Pet Walking Hour',
-    'Personal Tutoring'
+    'Personal Tutoring',
+    'AC Deep Cleaning',
+    'Appliance Repair Help',
+    'Car Wash at Doorstep',
+    'Curtain & Sofa Shampoo',
+    'Bike Service Pickup',
+    'Yoga Coaching Hour',
+    'Music Lesson Slot',
+    'Home Baking Workshop',
+    'Photography Mini-shoot',
+    'Interior Styling Consult',
+    'Laundry & Ironing Run',
+    'Laptop Troubleshooting',
+    'Kids Activity Session',
+    'Elderly Care Visit'
   ],
   dairy: [
     'A2 Cow Milk (1L)',
@@ -176,14 +227,37 @@ const categoryNames: Record<ProductCategory, string[]> = {
     'Flavored Lassi',
     'Cheddar Cheese Block',
     'Fresh Cream (200ml)',
-    'Buttermilk Pack'
+    'Buttermilk Pack',
+    'Paneer Tikka Cubes',
+    'Protein Rich Whey Bottle',
+    'Probiotic Kefir Drink',
+    'Almond Butter Spread',
+    'Masala Chaas Duo',
+    'Herbed Cheese Spread',
+    'Buffalo Milk (1L)',
+    'Vanilla Pudding Cups',
+    'Coffee Creamer Pack'
   ],
   homemade: [
     'Artisan Pickle Jar',
     'Millet Cookies Box',
     'Cold Brew Concentrate',
     'Hand-poured Soy Candle',
-    'Nut Butter Sampler'
+    'Nut Butter Sampler',
+    'Granola Breakfast Jars',
+    'Sourdough Starter Kit',
+    'Herbal Bath Salt Vials',
+    'Coconut Jaggery Laddoos',
+    'Sun-dried Tomato Spread',
+    'Seed Crackers Tin',
+    'Handmade Soap Bars',
+    'Chutney Trio Pack',
+    'Floral Room Mist',
+    'Artisan Fudge Box',
+    'Craft Kombucha Batch',
+    'Local Spice Rub Set',
+    'Festive Sweet Platter',
+    'Wellness Herb Infusion'
   ]
 };
 

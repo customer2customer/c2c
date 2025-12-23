@@ -106,7 +106,7 @@ export class DataLoaderService {
       isPreorderAvailable: product.isPreorderAvailable ?? false,
       videoUrl: product.videoUrl ?? undefined,
       hoverMedia: product.hoverMedia ?? undefined,
-      verificationStatus: (product.verificationStatus as VerificationStatus) ?? 'verified',
+      verificationStatus: (product.verificationStatus as VerificationStatus) ?? 'pending',
       createdById: product.createdById ?? product.sellerId ?? 'community-seller',
       createdByEmail: product.createdByEmail ?? 'unknown@c2c.local',
       createdByName: product.createdByName ?? product.sellerName ?? 'Community Seller',

@@ -30,6 +30,11 @@ export class CustomerService {
     await setDoc(ref, payload, { merge: true });
   }
 
+  isProfileComplete(profile?: CustomerProfile): boolean {
+    if (!profile) return false;
+    return Boolean(profile.firstName && profile.lastName && profile.email && profile.phone && profile.address && profile.city);
+  }
+
   private normalize(customer: Partial<CustomerProfile>): CustomerProfile {
     const toDate = (value?: unknown): Date => {
       if ((value as Timestamp)?.toDate) return (value as Timestamp).toDate();
