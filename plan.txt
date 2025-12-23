@@ -1,0 +1,539 @@
+APPLICATION OVERVIEW
+Build a Community-to-Community (C2C) marketplace web application using Angular 19 and Firebase Firestore where individuals can buy and sell products directly. The application follows a public-first approach where browsing is open to everyone, but transactions require authentication.
+
+CORE PHILOSOPHY
+Public Browsing: Anyone can view all products without logging in
+
+Protected Transactions: Login required only for buying or selling
+
+Dual Role Support: Same user can be both buyer AND seller
+
+Direct Sales: Sellers manage their own product listings
+
+Community Trust: Rating and review system for sellers
+
+TECHNICAL STACK
+Frontend: Angular 19 with TypeScript (strict mode)
+
+Styling: Tailwind CSS (responsive, mobile-first)
+
+State Management: RxJS with BehaviorSubjects
+
+Backend: Firebase Firestore (NoSQL database)
+
+Authentication: Firebase Auth with Email OTP (passwordless)
+
+Architecture: Lazy-loaded feature modules
+
+CORE FEATURES TO IMPLEMENT
+1. PUBLIC FEATURES (No Authentication Required)
+Home Page
+typescript
+// Expected components:
+- Hero section with marketplace introduction
+- Featured products carousel (top 6-8 products)
+- Category navigation cards (groceries, vegetables, clothing, services, dairy, homemade)
+- Call-to-action buttons ("Browse Products", "Start Selling")
+- Responsive navigation bar with search
+Code Expectations:
+
+Use Angular Router for navigation
+
+Implement product carousel with automatic sliding
+
+Category cards should link to filtered product listings
+
+Mobile-responsive (hamburger menu on < 768px)
+
+Product Listing Page
+typescript
+// Features to implement:
+- Grid layout: 3 columns (desktop), 2 columns (tablet), 1 column (mobile)
+- Product cards showing:
+  * Product image (placeholder if no image)
+  * Product name (max 2 lines, truncate with ellipsis)
+  * C2C price (prominent) vs Market price (strikethrough)
+  * Discount percentage badge
+  * Seller name and rating (stars)
+  * Seller location (city)
+  * Stock status indicator
+  * Delivery options icons (courier/direct visit)
+
+- Pagination: 20 products per page OR infinite scroll
+- Search bar: Real-time search on product name, description, seller name
+- Filter sidebar:
+  * By category (checkbox multi-select)
+  * By price range (min-max sliders)
+  * By delivery method (courier, direct visit, both)
+  * By location/city (dropdown)
+  * "In stock only" toggle
+  
+- Sort dropdown:
+  * Price: Low to High
+  * Price: High to Low
+  * Newest First
+  * Most Popular (by views/sales)
+  * Highest Rated Seller
+Code Expectations:
+
+Create ProductService with filter/search methods using RxJS
+
+Implement ProductFilterComponent for sidebar
+
+Use Firestore queries with compound indexes
+
+Debounce search input (300ms) to reduce queries
+
+Preserve filter state in URL query parameters
+
+Show loading skeletons during data fetch
+
+Product Detail Page
+typescript
+// Layout sections:
+1. Image Gallery (left/top):
+   - Main image display with zoom on hover
+   - Thumbnail carousel (if multiple images)
+   - Lightbox modal for full-screen view
+
+2. Product Information (right/middle):
+   - Product name (H1)
+   - Category badge
+   - SKU code
+   - Market price (strikethrough, gray)
+   - C2C price (large, green)
+   - Discount percentage (badge)
+   - Stock quantity indicator
+   - Description (expandable if > 200 chars)
+   - Delivery options (icons + text)
+   - Available dates calendar view
+
+3. Seller Information Card:
+   - Seller avatar (circular)
+   - Seller name (clickable to seller profile)
+   - Trust score (stars out of 5)
+   - Total reviews count
+   - Seller location with map icon
+   - "Contact Seller" button (future)
+
+4. Action Buttons:
+   - "Buy Now" (primary, redirects to login if not authenticated)
+   - "Add to Cart" (secondary, future feature)
+   - "Add to Wishlist" (icon button, future)
+
+5. Related Products Section:
+   - Show 4-6 similar products (same category)
+   - Horizontal scroll on mobile
+
+6. Reviews Section (future phase):
+   - Average rating summary
+   - Recent reviews list
+Code Expectations:
+
+Use route parameters to get product ID: /products/:id
+
+Handle 404 if product not found
+
+Implement image carousel with keyboard navigation
+
+Use Angular animations for smooth transitions
+
+Check authentication status before "Buy Now"
+
+Redirect to login with returnUrl parameter
+
+Load related products asynchronously
+
+2. AUTHENTICATION SYSTEM
+Email OTP Flow
+typescript
+// Workflow:
+1. User enters email on login page
+2. Firebase sends magic link to email (sendSignInLinkToEmail)
+3. User clicks link in email
+4. Browser opens verification page
+5. Firebase auto-completes sign-in (signInWithEmailLink)
+6. If first-time user: Redirect to profile creation
+7. If existing user: Redirect to intended page (or home)
+Components to Create:
+
+typescript
+// 1. LoginComponent
+- Email input with validation (@angular/forms)
+- "Send Magic Link" button
+- Loading state during email send
+- Success message: "Check your email"
+- Error handling (invalid email, rate limit exceeded)
+
+// 2. OTPVerifyComponent
+- Auto-check if URL contains sign-in link
+- Extract email from localStorage (saved during step 1)
+- Call Firebase signInWithEmailLink()
+- Show loading spinner
+- Handle errors (expired link, invalid link)
+- Redirect on success
+
+// 3. SignupComponent (Profile Creation)
+- Name input (required, max 100 chars)
+- Phone number input (required, 10 digits)
+- User type selection (required):
+  * Buyer only
+  * Seller only
+  * Both (buyer and seller)
+- Location inputs (optional):
+  * Address (textarea)
+  * City (dropdown or autocomplete)
+- Avatar upload (optional, future feature)
+- "Create Profile" button
+- Validation with error messages
+- Save to Firestore users collection
+Code Expectations:
+
+Create AuthService with methods:
+
+sendSignInLink(email: string): Promise<void>
+
+completeSignIn(email: string, link: string): Promise<User>
+
+getCurrentUser(): Observable<User | null>
+
+isAuthenticated(): Observable<boolean>
+
+logout(): Promise<void>
+
+Store email in localStorage during login
+
+Create AuthGuard to protect routes
+
+Redirect to login with returnUrl for protected pages
+
+Clear localStorage after successful sign-in
+
+3. SELLER FEATURES (Protected - Auth Required)
+Seller Dashboard
+typescript
+// Overview cards (top section):
+- Total Products: count with icon
+- Total Sales: ₹X,XXX with trend arrow
+- Average Rating: X.X stars with review count
+- Recent Orders: mini-list (last 5)
+
+// Quick actions section:
+- "Create New Product" button (prominent, green)
+- "View All Products" link
+- "Manage Orders" link (future)
+- "View Analytics" link (future)
+
+// Product list table:
+Columns: Image | Name | Category | Price | Stock | Status | Actions
+- Show all products by current seller (sellerId filter)
+- Actions: Edit icon, Delete icon, View icon
+- Search products by name
+- Filter by category
+- Filter by status (active/inactive)
+- Pagination: 10 products per page
+Code Expectations:
+
+Check if user has seller role (userType === 'seller' || 'both')
+
+Query Firestore: products where sellerId == currentUser.uid
+
+Calculate stats in real-time from Firestore
+
+Use RxJS combineLatest for multiple data sources
+
+Implement soft delete (isActive: false) instead of hard delete
+
+Create Product Form
+typescript
+// Form fields with validation:
+- Product Name: required, 3-200 chars
+- Description: required, 10-5000 chars, textarea with character count
+- Category: required, dropdown (groceries, vegetables, clothing, services, dairy, homemade)
+- SKU: required, alphanumeric, unique per seller
+- Market Price: required, number >= 0
+- C2C Price: required, number >= 0, must be <= marketPrice
+- Discount: auto-calculated (marketPrice - c2cPrice)
+- Stock Quantity: required, integer >= 0
+- Image Upload: 1-5 images, max 2MB each (future: use Firebase Storage)
+- Delivery Options: checkboxes
+  * Courier delivery available
+  * Direct visit/pickup available
+  * At least one must be selected
+- Available Dates: multi-date picker (for scheduled products)
+- Upcoming Scheduled: optional, array of {date, quantity} for bulk orders
+
+// Form behaviors:
+- Real-time validation with error messages
+- Disable submit if form invalid
+- Show loading spinner during save
+- Success message on save
+- Redirect to seller dashboard OR stay on page with reset
+- Error handling with user-friendly messages
+Code Expectations:
+
+Use Reactive Forms (FormBuilder, FormGroup, Validators)
+
+Create custom validators: priceValidator, skuValidator
+
+Calculate discount automatically: marketPrice - c2cPrice
+
+Add current user's ID as sellerId
+
+Add current user's name as sellerName (denormalized)
+
+Add createdAt, updatedAt timestamps
+
+Use Firestore addDoc() to create new product
+
+For images: Use placeholder URLs initially (implement Firebase Storage later)
+
+Edit Product
+typescript
+// Same form as Create Product but:
+- Pre-populate all fields from existing product
+- Update button instead of Create button
+- Preserve original createdAt, update updatedAt
+- Show delete button (with confirmation)
+Code Expectations:
+
+Load product by ID: getProductById(id)
+
+Verify current user is the seller: product.sellerId === currentUser.uid
+
+Show 403 error if user doesn't own product
+
+Use updateDoc() to save changes
+
+Only update changed fields (delta updates)
+
+Optimistic UI updates with rollback on error
+
+Delete Product
+typescript
+// Confirmation dialog:
+- "Are you sure you want to delete [Product Name]?"
+- "This action cannot be undone."
+- Cancel button (gray)
+- Delete button (red)
+Code Expectations:
+
+Implement soft delete: updateDoc({isActive: false})
+
+Don't actually delete from Firestore (for order history)
+
+Remove from search results immediately
+
+Show success toast notification
+
+Redirect to dashboard
+
+4. DATA MODELS
+Product Interface
+typescript
+export interface Product {
+  id: string;                      // Firestore auto-generated
+  productName: string;             // 3-200 chars
+  description: string;             // 10-5000 chars
+  category: 'groceries' | 'vegetables' | 'clothing' | 'services' | 'dairy' | 'homemade';
+  sku: string;                     // Unique per seller
+  marketPrice: number;             // Original MRP
+  c2cPrice: number;                // Direct selling price
+  priceDiscount: number;           // Auto-calculated
+  images: string[];                // Array of image URLs (1-5)
+  stock: number;                   // Available quantity
+  sellerId: string;                // Reference to users/:id
+  sellerName: string;              // Denormalized for display
+  sellerRating: number;            // Current seller rating (0-5)
+  reviewCount: number;             // Number of reviews
+  sellerLocation: {
+    address: string;
+    city: string;
+    lat?: number;                  // Optional for map
+    lng?: number;
+  };
+  deliveryOptions: {
+    courier: boolean;
+    directVisit: boolean;
+  };
+  availableDates: string[];        // ISO date strings
+  upcomingScheduled: Array<{
+    date: string;                  // ISO date
+    quantity: number;
+  }>;
+  isActive: boolean;               // Soft delete flag
+  createdAt?: Date;                // Firestore Timestamp
+  updatedAt?: Date;                // Firestore Timestamp
+}
+User Interface
+typescript
+export interface User {
+  id: string;                      // Firebase Auth UID
+  email: string;                   // From Firebase Auth
+  name: string;                    // User's full name
+  phone?: string;                  // 10-digit phone number
+  userType: 'buyer' | 'seller' | 'both';
+  avatar?: string;                 // Profile image URL
+  location?: {
+    address: string;
+    city: string;
+    lat?: number;
+    lng?: number;
+  };
+  trustScore: number;              // 0-5 stars
+  totalOrders: number;             // Count as buyer
+  sellerStats?: {                  // Only if seller
+    totalProducts: number;
+    totalSales: number;
+    averageRating: number;
+  };
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+5. FIRESTORE SECURITY RULES
+javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Products: Public read, owner write
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if request.auth != null 
+                    && request.resource.data.sellerId == request.auth.uid;
+      allow update: if request.auth != null 
+                    && resource.data.sellerId == request.auth.uid;
+      allow delete: if request.auth != null 
+                    && resource.data.sellerId == request.auth.uid;
+    }
+    
+    // Users: Owner only
+    match /users/{userId} {
+      allow read, write: if request.auth != null 
+                         && request.auth.uid == userId;
+    }
+  }
+}
+6. ANGULAR ARCHITECTURE
+Module Structure
+typescript
+src/app/
+├── core/                          // Singleton services
+│   ├── auth/
+│   │   └── services/
+│   │       ├── auth.service.ts    // Firebase authentication logic
+│   │       └── auth.guard.ts      // Route protection
+│   ├── firebase/
+│   │   ├── firebase.config.ts     // Firebase initialization
+│   │   └── firebase.service.ts    // Generic CRUD operations
+│   └── data/
+│       └── data-loader.service.ts // Test data seeding
+
+├── shared/                         // Reusable components
+│   ├── models/
+│   │   ├── product.model.ts
+│   │   └── user.model.ts
+│   └── components/
+│       ├── product-card/          // Reusable product card
+│       └── loading-spinner/       // Loading indicator
+
+├── features/                       // Lazy-loaded feature modules
+│   ├── home/
+│   │   ├── home.module.ts
+│   │   └── home.component.ts
+│   ├── auth/
+│   │   ├── auth.module.ts
+│   │   ├── login.component.ts
+│   │   ├── otp-verify.component.ts
+│   │   └── signup.component.ts
+│   ├── products/
+│   │   ├── products.module.ts
+│   │   ├── product-list.component.ts
+│   │   ├── product-detail.component.ts
+│   │   └── services/
+│   │       └── product.service.ts
+│   └── seller/
+│       ├── seller.module.ts
+│       ├── seller-dashboard.component.ts
+│       ├── product-create.component.ts
+│       └── product-edit.component.ts
+Routing Configuration
+typescript
+const routes: Routes = [
+  { path: '', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
+  { path: 'products', loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule) },
+  { path: 'auth', loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule) },
+  { 
+    path: 'seller', 
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./features/seller/seller.module').then(m => m.SellerModule) 
+  },
+  { path: '**', redirectTo: '' }
+];
+7. CODE QUALITY EXPECTATIONS
+TypeScript Best Practices
+Use strict mode: "strict": true in tsconfig.json
+
+Define interfaces for all data structures
+
+Use type guards for runtime type checking
+
+Avoid any type (use unknown if necessary)
+
+Use enums for fixed value sets (categories, user types)
+
+Angular Best Practices
+Use OnPush change detection where possible
+
+Unsubscribe from observables in ngOnDestroy
+
+Use async pipe in templates to auto-unsubscribe
+
+Lazy load all feature modules
+
+Use trackBy functions in *ngFor for performance
+
+Implement error boundaries for components
+
+RxJS Patterns
+Use BehaviorSubject for state management
+
+Use switchMap for dependent HTTP calls
+
+Use debounceTime for search inputs
+
+Use combineLatest for multiple data sources
+
+Use shareReplay for expensive observables
+
+Handle errors with catchError operator
+
+Styling Standards
+Use Tailwind utility classes: class="flex items-center justify-between"
+
+Mobile-first responsive: class="w-full md:w-1/2 lg:w-1/3"
+
+Consistent spacing: 4px base unit (4, 8, 12, 16, 24, 32)
+
+Color palette: Primary (green #00796B), Secondary (orange #FF5722)
+
+Hover states: hover:bg-gray-100
+
+Focus states: focus:ring-2 focus:ring-green-500
+
+8. MOCK DATA FOR TESTING
+Include 2 pre-configured sellers and 25 sample products:
+
+Seller 1: farmer@freshproduce.com (15 vegetable products, 4.8★)
+Seller 2: dairy@delightmilk.com (10 dairy products, 4.9★)
+Buyer: buyer@example.com (for testing purchases)
+
+CODE EXPECTATIONS SUMMARY
+✅ Functional: All features work without errors
+✅ Responsive: Mobile (375px), Tablet (768px), Desktop (1024px+)
+✅ Fast: Page load < 3 seconds, Lighthouse score > 90
+✅ Secure: Firestore rules enforced, input validation, XSS prevention
+✅ Clean: TypeScript strict mode, proper interfaces, documented code
+✅ Tested: Unit tests for services, integration tests for flows
+✅ Accessible: ARIA labels, keyboard navigation, screen reader friendly
+✅ Maintainable: Modular architecture, reusable components, clear naming
