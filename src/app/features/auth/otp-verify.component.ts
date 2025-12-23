@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { CustomerService } from '../../core/customer/customer.service';
+import { firstValueFrom, take } from 'rxjs';
 
 @Component({
   selector: 'app-otp-verify',
@@ -16,7 +18,8 @@ export class OtpVerifyComponent implements OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly route: ActivatedRoute,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly customerService: CustomerService
   ) {}
 
   ngOnInit(): void {
@@ -34,11 +37,18 @@ export class OtpVerifyComponent implements OnInit {
 
     this.status = 'verifying';
     try {
-      await this.authService.completeSignIn(email, link);
-      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
+      const user = await this.authService.completeSignIn(email, link);
+      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/products';
       localStorage.removeItem('c2c-login-email');
       this.status = 'success';
-      this.router.navigateByUrl(returnUrl);
+      const profile = await firstValueFrom(this.customerService.getCustomerById(user.id).pipe(take(1)));
+      const profileComplete = this.customerService.isProfileComplete(profile);
+
+      if (!profileComplete) {
+        await this.router.navigate(['/account'], { queryParams: { returnUrl } });
+      } else {
+        await this.router.navigateByUrl(returnUrl);
+      }
     } catch (error) {
       console.error(error);
       this.status = 'error';

@@ -16,7 +16,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   search = '';
   selectedCategories: ProductCategory[] = [];
   selectedSort: SortOption = 'newest';
-  filtersVisible = false;
   private readonly destroy$ = new Subject<void>();
 
   categories: ProductCategory[] = ['groceries', 'vegetables', 'clothing', 'services', 'dairy', 'homemade'];
@@ -58,10 +57,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.selectedCategories = [...this.selectedCategories, category];
     }
     this.applyFilters();
-  }
-
-  toggleFilters(): void {
-    this.filtersVisible = !this.filtersVisible;
   }
 
   trackByProductId(index: number, product: Product): string {

@@ -3,6 +3,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Product, ProductCategory } from '../../shared/models/product.model';
 import { ProductService } from '../products/services/product.service';
+import { AuthService } from '../../core/auth/services/auth.service';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-product-edit',
@@ -16,11 +18,13 @@ export class ProductEditComponent implements OnInit {
   form!: ReturnType<FormBuilder['group']>;
   private productId = '';
   private existingProduct?: Product;
+  canVerify = false;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly route: ActivatedRoute,
-    private readonly productService: ProductService
+    private readonly productService: ProductService,
+    private readonly authService: AuthService
   ) {
     this.form = this.fb.group({
       productName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
@@ -35,8 +39,14 @@ export class ProductEditComponent implements OnInit {
       videoUrl: [''],
       hoverMedia: [''],
       isPreorderAvailable: [false],
-      isActive: [true]
+      isActive: [true],
+      verificationStatus: ['pending']
     });
+
+    this.authService
+      .getCurrentUser()
+      .pipe(map((user) => user?.email === 'tselvanmsc@gmail.com'))
+      .subscribe((isAdmin) => (this.canVerify = isAdmin));
   }
 
   ngOnInit(): void {
@@ -57,7 +67,8 @@ export class ProductEditComponent implements OnInit {
         videoUrl: product.videoUrl,
         hoverMedia: product.hoverMedia,
         isPreorderAvailable: product.isPreorderAvailable,
-        isActive: product.isActive
+        isActive: product.isActive,
+        verificationStatus: product.verificationStatus
       });
     });
   }
@@ -88,7 +99,9 @@ export class ProductEditComponent implements OnInit {
       isPreorderAvailable: Boolean(value.isPreorderAvailable),
       videoUrl: value.videoUrl ?? undefined,
       hoverMedia: value.hoverMedia ?? undefined,
-      verificationStatus: 'verified',
+      verificationStatus: this.canVerify
+        ? ((value.verificationStatus as Product['verificationStatus']) ?? this.existingProduct.verificationStatus)
+        : this.existingProduct.verificationStatus,
       updatedAt: new Date()
     };
 

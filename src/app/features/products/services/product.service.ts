@@ -3,6 +3,7 @@ import { collection, deleteDoc, doc, Firestore, setDoc, updateDoc } from '@angul
 import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { DataLoaderService } from '../../../core/data/data-loader.service';
 import { Product, ProductCategory } from '../../../shared/models/product.model';
+import { User } from '../../../shared/models/user.model';
 
 export type SortOption = 'priceLowHigh' | 'priceHighLow' | 'newest' | 'popular' | 'rating';
 
@@ -18,6 +19,7 @@ export interface ProductFilters {
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
+  private readonly adminEmail = 'tselvanmsc@gmail.com';
   private readonly productsSource$ = new BehaviorSubject<Product[]>([]);
   private readonly filters$ = new BehaviorSubject<ProductFilters>({
     search: '',
@@ -37,6 +39,10 @@ export class ProductService {
     );
   }
 
+  getRawProducts(): Observable<Product[]> {
+    return this.productsSource$.asObservable();
+  }
+
   getProductById(productId: string): Observable<Product | undefined> {
     return this.productsSource$.pipe(map((products) => products.find((p) => p.id === productId)));
   }
@@ -52,6 +58,7 @@ export class ProductService {
       ...product,
       id: docRef.id,
       createdAt: product.createdAt ?? new Date(),
+      verificationStatus: product.verificationStatus ?? 'pending',
       updatedAt: new Date()
     };
 
@@ -69,8 +76,15 @@ export class ProductService {
     await deleteDoc(ref);
   }
 
-  getProductsForSeller(sellerId: string): Observable<Product[]> {
-    return this.getProducts().pipe(map((products) => products.filter((product) => product.createdById === sellerId)));
+  getProductsForSeller(user: User): Observable<Product[]> {
+    return this.getRawProducts().pipe(
+      map((products) => {
+        if (user.email === this.adminEmail) return products;
+        return products.filter(
+          (product) => product.createdByEmail === user.email || product.createdById === user.id
+        );
+      })
+    );
   }
 
   private applyFilters(products: Product[], filters: ProductFilters): Product[] {

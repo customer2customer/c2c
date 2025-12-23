@@ -61,7 +61,9 @@ export class ProductCreateComponent {
         marketPrice: value.marketPrice ?? 0,
         c2cPrice: value.c2cPrice ?? 0,
         priceDiscount: discount,
-        images: ['https://placehold.co/600x400'],
+        images: [
+          'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80'
+        ],
         stock: value.stock ?? 0,
         sellerId: user?.id ?? 'unknown',
         sellerName: user?.name ?? 'Current Seller',
@@ -77,7 +79,7 @@ export class ProductCreateComponent {
         isPreorderAvailable: Boolean(value.isPreorderAvailable),
         videoUrl: value.videoUrl ?? undefined,
         hoverMedia: value.hoverMedia ?? undefined,
-        verificationStatus: 'verified',
+        verificationStatus: 'pending',
         createdById: user?.id ?? 'unknown',
         createdByEmail: user?.email ?? 'unknown@c2c.local',
         createdByName: user?.name ?? 'Current Seller',
