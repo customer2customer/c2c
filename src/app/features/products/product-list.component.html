@@ -1,26 +1,38 @@
 <section class="page">
   <header class="hero">
-    <div>
+    <div class="hero-copy">
       <p class="eyebrow">Community Marketplace</p>
-      <h1>Browse fresh listings from trusted neighbors</h1>
-      <p class="subtitle">Search, filter, and explore products without logging in.</p>
+      <h1>Fresh drops from trusted neighbors</h1>
+      <p class="subtitle">Browse beautiful listings, filter what you love, and tap through delightful product cards.</p>
+      <div class="actions">
+        <input
+          type="search"
+          placeholder="Search products, descriptions, or sellers"
+          [(ngModel)]="search"
+          (ngModelChange)="applyFilters()"
+          aria-label="Search products"
+        />
+        <select [(ngModel)]="selectedSort" (ngModelChange)="applyFilters()" aria-label="Sort products">
+          <option *ngFor="let option of sortOptions" [ngValue]="option.value">{{ option.label }}</option>
+        </select>
+      </div>
     </div>
-    <div class="actions">
-      <input
-        type="search"
-        placeholder="Search products, descriptions, or sellers"
-        [(ngModel)]="search"
-        (ngModelChange)="applyFilters()"
-        aria-label="Search products"
-      />
-      <select [(ngModel)]="selectedSort" (ngModelChange)="applyFilters()" aria-label="Sort products">
-        <option *ngFor="let option of sortOptions" [ngValue]="option.value">{{ option.label }}</option>
-      </select>
+    <div class="hero-visual">
+      <div class="card-floating">
+        <p class="pill">Realtime inventory</p>
+        <p class="pill glass">Firebase backed</p>
+        <p class="pill">Mobile-first UI</p>
+      </div>
     </div>
   </header>
 
   <div class="filters">
-    <span *ngFor="let category of categories" class="chip" [class.active]="selectedCategories.includes(category)" (click)="toggleCategory(category)">
+    <span
+      *ngFor="let category of categories"
+      class="chip"
+      [class.active]="selectedCategories.includes(category)"
+      (click)="toggleCategory(category)"
+    >
       {{ category }}
     </span>
   </div>

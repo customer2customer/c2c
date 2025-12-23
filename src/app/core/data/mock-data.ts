@@ -67,6 +67,15 @@ const dairyNames = [
   'Buttermilk Pack'
 ];
 
+const sampleImages = [
+  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1502741509793-7b4394dc0e43?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1441123694162-e54a981ceba3?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=800&q=80'
+];
+
 const buildProduct = (
   id: string,
   productName: string,
@@ -81,6 +90,7 @@ const buildProduct = (
   const c2cPrice = marketPrice - 15;
   const availableDate = new Date();
   availableDate.setDate(availableDate.getDate() + (index % 5));
+  const previewImages = [sampleImages[index % sampleImages.length]];
 
   return {
     id,
@@ -91,7 +101,7 @@ const buildProduct = (
     marketPrice,
     c2cPrice,
     priceDiscount: marketPrice - c2cPrice,
-    images: [`https://placehold.co/600x400?text=${encodeURIComponent(productName)}`],
+    images: previewImages,
     stock: 20 + index,
     sellerId,
     sellerName,

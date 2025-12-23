@@ -2,71 +2,114 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
-  padding: 24px;
+  padding: 24px 4px 32px;
+  align-items: start;
 }
 
-.gallery img {
+.gallery {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.gallery > img {
   width: 100%;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border-radius: 14px;
   object-fit: cover;
+}
+
+.thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.thumbs img {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.info {
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
 }
 
 .badge {
   display: inline-block;
-  background: #e0f2f1;
-  color: #00796b;
+  background: #e0f2fe;
+  color: #0ea5e9;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   text-transform: capitalize;
+  font-weight: 800;
 }
 
 .price {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: baseline;
 }
 
 .c2c {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
-  color: #00796b;
+  color: #0ea5e9;
 }
 
 .market {
   text-decoration: line-through;
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 .discount {
-  color: #dc2626;
+  color: #16a34a;
+  font-weight: 700;
 }
 
 .description {
   margin: 12px 0;
-  color: #374151;
+  color: #334155;
+  line-height: 1.6;
 }
 
 .actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 16px;
   border: 1px solid transparent;
   cursor: pointer;
+  font-weight: 700;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
 button.primary {
-  background: #00796b;
+  background: linear-gradient(135deg, #2563eb, #22c55e);
   color: #fff;
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.25);
 }
 
 button.secondary {
   border-color: #d1d5db;
   background: #fff;
+  color: #0f172a;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
 }
 
 .empty {
