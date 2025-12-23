@@ -1,0 +1,35 @@
+<section class="page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Community Marketplace</p>
+      <h1>Browse fresh listings from trusted neighbors</h1>
+      <p class="subtitle">Search, filter, and explore products without logging in.</p>
+    </div>
+    <div class="actions">
+      <input
+        type="search"
+        placeholder="Search products, descriptions, or sellers"
+        [(ngModel)]="search"
+        (ngModelChange)="applyFilters()"
+        aria-label="Search products"
+      />
+      <select [(ngModel)]="selectedSort" (ngModelChange)="applyFilters()" aria-label="Sort products">
+        <option *ngFor="let option of sortOptions" [ngValue]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="filters">
+    <span *ngFor="let category of categories" class="chip" [class.active]="selectedCategories.includes(category)" (click)="toggleCategory(category)">
+      {{ category }}
+    </span>
+  </div>
+
+  <section class="grid">
+    <app-product-card
+      *ngFor="let product of products; trackBy: trackByProductId"
+      [product]="product"
+      (click)="openProduct(product)"
+    ></app-product-card>
+  </section>
+</section>

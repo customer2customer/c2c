@@ -1,0 +1,44 @@
+<section class="seller">
+  <header>
+    <div>
+      <p class="eyebrow">Seller workspace</p>
+      <h1>Manage your listings</h1>
+    </div>
+    <div class="quick-actions">
+      <a routerLink="/seller/create" class="primary">Create New Product</a>
+      <a routerLink="/products" class="secondary">View public catalog</a>
+    </div>
+  </header>
+
+  <section class="stats" *ngIf="stats$ | async as stats">
+    <div>
+      <p class="label">Total Products</p>
+      <p class="value">{{ stats.totalProducts }}</p>
+    </div>
+    <div>
+      <p class="label">Estimated Sales</p>
+      <p class="value">₹{{ stats.totalSales | number: '1.0-0' }}</p>
+    </div>
+    <div>
+      <p class="label">Average Rating</p>
+      <p class="value">{{ stats.averageRating | number: '1.1-1' }}★</p>
+    </div>
+  </section>
+
+  <section class="table" *ngIf="products$ | async as products">
+    <div class="table-row table-head">
+      <span>Name</span>
+      <span>Category</span>
+      <span>Price</span>
+      <span>Stock</span>
+      <span>Status</span>
+    </div>
+    <div class="table-row" *ngFor="let product of products; trackBy: trackByProductId">
+      <span>{{ product.productName }}</span>
+      <span>{{ product.category }}</span>
+      <span>₹{{ product.c2cPrice | number: '1.0-0' }}</span>
+      <span>{{ product.stock }}</span>
+      <span>{{ product.isActive ? 'Active' : 'Inactive' }}</span>
+    </div>
+  </section>
+</section>

@@ -1,0 +1,27 @@
+<section class="detail" *ngIf="product$ | async as product; else notFound">
+  <div class="gallery">
+    <img [src]="product.images[0]" [alt]="product.productName" />
+  </div>
+  <div class="info">
+    <p class="badge">{{ product.category }}</p>
+    <h1>{{ product.productName }}</h1>
+    <p class="sku">SKU: {{ product.sku }}</p>
+    <p class="price">
+      <span class="c2c">₹{{ product.c2cPrice | number: '1.0-0' }}</span>
+      <span class="market">₹{{ product.marketPrice | number: '1.0-0' }}</span>
+      <span class="discount">Save ₹{{ product.priceDiscount | number: '1.0-0' }}</span>
+    </p>
+    <p class="description">{{ product.description }}</p>
+    <p class="seller">Seller: {{ product.sellerName }} ({{ product.sellerRating }}★)</p>
+    <p class="location">Location: {{ product.sellerLocation.city }}</p>
+
+    <div class="actions">
+      <button class="primary" (click)="buyNow(product)">Buy Now</button>
+      <button class="secondary" (click)="router.navigate(['/'])">Back to listings</button>
+    </div>
+  </div>
+</section>
+
+<ng-template #notFound>
+  <p class="empty">Product not found.</p>
+</ng-template>

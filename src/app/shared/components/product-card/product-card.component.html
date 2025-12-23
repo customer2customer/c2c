@@ -1,0 +1,18 @@
+<article class="product-card">
+  <div class="image-wrapper">
+    <img [src]="product.images[0] || 'https://placehold.co/400x300'" [alt]="product.productName" />
+    <span class="badge">-{{ discountPercent }}%</span>
+  </div>
+  <div class="content">
+    <h3 title="{{ product.productName }}">{{ product.productName }}</h3>
+    <p class="price">
+      <span class="c2c">₹{{ product.c2cPrice | number: '1.0-0' }}</span>
+      <span class="market">₹{{ product.marketPrice | number: '1.0-0' }}</span>
+    </p>
+    <p class="seller">{{ product.sellerName }} • {{ product.sellerRating }}★</p>
+    <p class="location">{{ product.sellerLocation.city }}</p>
+    <p class="stock" [class.out-of-stock]="product.stock === 0">
+      {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
+    </p>
+  </div>
+</article>

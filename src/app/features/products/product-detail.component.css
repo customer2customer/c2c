@@ -1,0 +1,75 @@
+.detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 24px;
+}
+
+.gallery img {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  object-fit: cover;
+}
+
+.badge {
+  display: inline-block;
+  background: #e0f2f1;
+  color: #00796b;
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-transform: capitalize;
+}
+
+.price {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.c2c {
+  font-size: 24px;
+  font-weight: 800;
+  color: #00796b;
+}
+
+.market {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+.discount {
+  color: #dc2626;
+}
+
+.description {
+  margin: 12px 0;
+  color: #374151;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  border-radius: 8px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+button.primary {
+  background: #00796b;
+  color: #fff;
+}
+
+button.secondary {
+  border-color: #d1d5db;
+  background: #fff;
+}
+
+.empty {
+  padding: 24px;
+  text-align: center;
+}

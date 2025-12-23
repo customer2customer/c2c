@@ -1,0 +1,49 @@
+<section class="seller">
+  <header>
+    <div>
+      <p class="eyebrow">Edit product</p>
+      <h1>Update listing</h1>
+    </div>
+  </header>
+
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <label>Product name</label>
+    <input type="text" formControlName="productName" />
+
+    <label>Description</label>
+    <textarea rows="3" formControlName="description"></textarea>
+
+    <label>Category</label>
+    <select formControlName="category">
+      <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+    </select>
+
+    <label>SKU</label>
+    <input type="text" formControlName="sku" />
+
+    <label>Market price</label>
+    <input type="number" formControlName="marketPrice" />
+
+    <label>C2C price</label>
+    <input type="number" formControlName="c2cPrice" />
+
+    <label>Stock quantity</label>
+    <input type="number" formControlName="stock" />
+
+    <label>
+      <input type="checkbox" formControlName="courier" /> Courier delivery available
+    </label>
+    <label>
+      <input type="checkbox" formControlName="directVisit" /> Direct visit/pickup available
+    </label>
+
+    <label>
+      <input type="checkbox" formControlName="isActive" /> Active
+    </label>
+
+    <div class="actions">
+      <button class="primary" type="submit">Save changes</button>
+      <a class="secondary" routerLink="/seller">Cancel</a>
+    </div>
+  </form>
+</section>
