@@ -1,9 +1,9 @@
-// TODO: Replace with real Firebase project values for local development
 export const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_AUTH_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: 'YOUR_APP_ID'
+  apiKey: 'AIzaSyC_PBoyPQL5aezTxMum-E9drK23sKnonJ0',
+  authDomain: 'customer2customers.firebaseapp.com',
+  projectId: 'customer2customers',
+  storageBucket: 'customer2customers.firebasestorage.app',
+  messagingSenderId: '488014828540',
+  appId: '1:488014828540:web:25f3e065d53bc351269879',
+  measurementId: 'G-T5ZJV3MHZT'
 };
