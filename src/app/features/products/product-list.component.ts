@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Product, ProductCategory } from '../../shared/models/product.model';
@@ -27,13 +33,20 @@ export class ProductListComponent implements OnInit, OnDestroy {
     { label: 'Highest Rated', value: 'rating' }
   ];
 
-  constructor(private readonly productService: ProductService, private readonly router: Router) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly router: Router,
+    private readonly changeDetectorRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.productService
       .getProducts()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((products) => (this.products = products));
+      .subscribe((products) => {
+        this.products = products;
+        this.changeDetectorRef.markForCheck();
+      });
     this.applyFilters();
   }
 
