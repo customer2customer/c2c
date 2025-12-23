@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { collection, collectionData, doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, collection, collectionData, doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { Observable, map } from 'rxjs';
 import { CustomerProfile } from '../../shared/models/customer.model';
 

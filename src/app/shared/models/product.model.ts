@@ -22,12 +22,12 @@ export interface Product {
     email?: string;
     whatsapp?: string;
   };
-  sellerLocation: {
+  sellerLocations: Array<{
     address: string;
     city: string;
     lat?: number;
     lng?: number;
-  };
+  }>;
   deliveryOptions: {
     courier: boolean;
     directVisit: boolean;

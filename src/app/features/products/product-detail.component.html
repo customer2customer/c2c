@@ -27,7 +27,9 @@
     <section class="seller-block">
       <h3>Seller & contact</h3>
       <p class="seller">{{ product.sellerName }} • {{ product.sellerRating }}★ ({{ product.reviewCount }} reviews)</p>
-      <p class="location">{{ product.sellerLocation.address }}, {{ product.sellerLocation.city }}</p>
+      <p class="location" *ngFor="let location of product.sellerLocations">
+        {{ location.address }}, {{ location.city }}
+      </p>
       <p class="contact">Call {{ product.sellerContact.phone }} <span *ngIf="product.sellerContact.email">• {{ product.sellerContact.email }}</span></p>
     </section>
 

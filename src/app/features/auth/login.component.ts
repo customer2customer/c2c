@@ -100,8 +100,14 @@ export class LoginComponent {
     if (!user) return;
 
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/products';
-    const profile = await firstValueFrom(this.customerService.getCustomerById(user.id).pipe(take(1)));
-    const hasCompleteProfile = this.customerService.isProfileComplete(profile);
+    let hasCompleteProfile = false;
+
+    try {
+      const profile = await firstValueFrom(this.customerService.getCustomerById(user.id).pipe(take(1)));
+      hasCompleteProfile = this.customerService.isProfileComplete(profile);
+    } catch (error) {
+      console.error('Failed to load customer profile after login', error);
+    }
 
     if (!hasCompleteProfile) {
       await this.router.navigate(['/account'], { queryParams: { returnUrl } });
