@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, deleteDoc, doc, DocumentData, getDocs, setDoc } from '@angular/fire/firestore';
-import { Timestamp } from 'firebase/firestore';
-import { BehaviorSubject, Observable, catchError, from, map, of, switchMap, tap } from 'rxjs';
+import { Firestore, Timestamp, collection, collectionData, deleteDoc, doc, DocumentData, getDocs, setDoc } from '@angular/fire/firestore';
+import { BehaviorSubject, Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { Product, VerificationStatus } from '../../shared/models/product.model';
 import { User } from '../../shared/models/user.model';
 import { MOCK_PRODUCTS, MOCK_USERS } from './mock-data';
 
 @Injectable({ providedIn: 'root' })
 export class DataLoaderService {
-  private readonly fallbackProducts$ = new BehaviorSubject<Product[]>([]);
   private readonly users$ = new BehaviorSubject<User[]>(MOCK_USERS);
 
   private readonly generateId = (): string => {
@@ -27,14 +25,9 @@ export class DataLoaderService {
       map((docs) =>
         docs.map((doc) => this.normalizeProduct(doc as Partial<Product> & DocumentData))
       ),
-      tap((products: Product[]) => {
-        if (products.length) {
-          this.fallbackProducts$.next(products);
-        }
-      }),
       catchError((error) => {
-        console.error('Falling back to local mock products because Firestore failed:', error);
-        return this.fallbackProducts$;
+        console.error('Failed to load products from Firestore:', error);
+        return of([]);
       })
     );
   }
@@ -79,6 +72,19 @@ export class DataLoaderService {
           'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80'
         ]) as string[];
 
+    const normalizeLocations = (): Product['sellerLocations'] => {
+      if ((product as Product).sellerLocations?.length) {
+        return (product as Product).sellerLocations;
+      }
+
+      const legacyLocation = (product as { sellerLocation?: Product['sellerLocations'][number] }).sellerLocation;
+      if (legacyLocation) {
+        return [legacyLocation];
+      }
+
+      return [{ address: 'Community Market', city: 'Pune' }];
+    };
+
     return {
       id: product.id ?? this.generateId(),
       productName: product.productName ?? 'Community product',
@@ -97,7 +103,7 @@ export class DataLoaderService {
       sellerRating: product.sellerRating ?? 4.8,
       reviewCount: product.reviewCount ?? 12,
       sellerContact: product.sellerContact ?? { phone: '+91-9876543210', email: 'seller@example.com' },
-      sellerLocation: product.sellerLocation ?? { address: 'Community Market', city: 'Pune' },
+      sellerLocations: normalizeLocations(),
       deliveryOptions: product.deliveryOptions ?? { courier: true, directVisit: true },
       availableDates: product.availableDates ?? [],
       upcomingScheduled: product.upcomingScheduled ?? [],
