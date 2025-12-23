@@ -73,10 +73,44 @@
   font-weight: 700;
 }
 
+.availability {
+  font-weight: 700;
+  color: #059669;
+}
+
+.availability.preorder {
+  color: #d97706;
+}
+
 .description {
   margin: 12px 0;
   color: #334155;
   line-height: 1.6;
+}
+
+.seller-block,
+.delivery,
+.video {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.delivery ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+  display: grid;
+  gap: 6px;
+}
+
+.video iframe {
+  width: 100%;
+  min-height: 220px;
+  border: none;
+  border-radius: 12px;
 }
 
 .actions {

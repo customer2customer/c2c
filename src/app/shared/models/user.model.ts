@@ -17,6 +17,7 @@ export interface User {
   location?: UserLocation;
   trustScore: number; // 0-5 stars
   totalOrders: number; // Count as buyer
+  authProvider?: 'password' | 'google' | 'emailLink';
   sellerStats?: {
     totalProducts: number;
     totalSales: number;

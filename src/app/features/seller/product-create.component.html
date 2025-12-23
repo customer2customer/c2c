@@ -30,12 +30,23 @@
     <label>Stock quantity</label>
     <input type="number" formControlName="stock" />
 
+    <label>Video link (how it's made)</label>
+    <input type="url" placeholder="https://www.youtube.com/embed/..." formControlName="videoUrl" />
+
+    <label>Hover animation / gif</label>
+    <input type="url" placeholder="https://media.giphy.com/..." formControlName="hoverMedia" />
+
     <label>
       <input type="checkbox" formControlName="courier" /> Courier delivery available
     </label>
     <label>
       <input type="checkbox" formControlName="directVisit" /> Direct visit/pickup available
     </label>
+    <label>
+      <input type="checkbox" formControlName="isPreorderAvailable" /> Allow preorder when out of stock
+    </label>
+
+    <p class="hint">Products are created as <strong>verified</strong> by default for now.</p>
 
     <div class="actions">
       <button class="primary" type="submit" [disabled]="status === 'saving'">Save product</button>

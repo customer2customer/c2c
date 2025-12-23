@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { collection, deleteDoc, doc, Firestore, setDoc, updateDoc } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { DataLoaderService } from '../../../core/data/data-loader.service';
 import { Product, ProductCategory } from '../../../shared/models/product.model';
@@ -17,32 +18,65 @@ export interface ProductFilters {
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
+  private readonly productsSource$ = new BehaviorSubject<Product[]>([]);
   private readonly filters$ = new BehaviorSubject<ProductFilters>({
     search: '',
     categories: [],
     inStockOnly: false
   });
 
-  constructor(private readonly dataLoader: DataLoaderService) {}
+  constructor(private readonly dataLoader: DataLoaderService, private readonly firestore: Firestore) {
+    this.dataLoader.getProducts().subscribe((products) => {
+      this.productsSource$.next(products);
+    });
+  }
 
   getProducts(): Observable<Product[]> {
-    return combineLatest([this.dataLoader.getProducts(), this.filters$]).pipe(
+    return combineLatest([this.productsSource$, this.filters$]).pipe(
       map(([products, filters]) => this.applyFilters(products, filters))
     );
   }
 
   getProductById(productId: string): Observable<Product | undefined> {
-    return this.dataLoader.getProducts().pipe(map((products) => products.find((p) => p.id === productId)));
+    return this.productsSource$.pipe(map((products) => products.find((p) => p.id === productId)));
   }
 
   updateFilters(newFilters: Partial<ProductFilters>): void {
     this.filters$.next({ ...this.filters$.value, ...newFilters });
   }
 
+  async createProduct(product: Product): Promise<Product> {
+    const productsRef = collection(this.firestore, 'products');
+    const docRef = doc(productsRef);
+    const payload = {
+      ...product,
+      id: docRef.id,
+      createdAt: product.createdAt ?? new Date(),
+      updatedAt: new Date()
+    };
+
+    await setDoc(docRef, payload);
+    return payload;
+  }
+
+  async updateProduct(updatedProduct: Product): Promise<void> {
+    const ref = doc(this.firestore, 'products', updatedProduct.id);
+    await updateDoc(ref, { ...updatedProduct, updatedAt: new Date() });
+  }
+
+  async deleteProduct(productId: string): Promise<void> {
+    const ref = doc(this.firestore, 'products', productId);
+    await deleteDoc(ref);
+  }
+
+  getProductsForSeller(sellerId: string): Observable<Product[]> {
+    return this.getProducts().pipe(map((products) => products.filter((product) => product.createdById === sellerId)));
+  }
+
   private applyFilters(products: Product[], filters: ProductFilters): Product[] {
     const normalizedSearch = filters.search.toLowerCase().trim();
 
-    let filtered = products.filter((product) => product.isActive);
+    let filtered = products.filter((product) => product.isActive && product.verificationStatus === 'verified');
 
     if (normalizedSearch) {
       filtered = filtered.filter((product) =>
@@ -80,7 +114,7 @@ export class ProductService {
     }
 
     if (filters.inStockOnly) {
-      filtered = filtered.filter((product) => product.stock > 0);
+      filtered = filtered.filter((product) => product.stock > 0 || product.isPreorderAvailable);
     }
 
     if (filters.sort) {

@@ -3,9 +3,35 @@
   <p>Tell us how you want to use the marketplace.</p>
 
   <form [formGroup]="form" (ngSubmit)="saveProfile()" novalidate>
-    <label for="name">Full name</label>
-    <input id="name" type="text" formControlName="name" />
-    <p class="error" *ngIf="form.controls['name'].invalid && form.controls['name'].touched">Name is required.</p>
+    <div class="grid-two">
+      <div>
+        <label for="firstName">First name</label>
+        <input id="firstName" type="text" formControlName="firstName" />
+        <p class="error" *ngIf="form.controls['firstName'].invalid && form.controls['firstName'].touched">First name is required.</p>
+      </div>
+      <div>
+        <label for="lastName">Last name</label>
+        <input id="lastName" type="text" formControlName="lastName" />
+        <p class="error" *ngIf="form.controls['lastName'].invalid && form.controls['lastName'].touched">Last name is required.</p>
+      </div>
+    </div>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" />
+    <p class="error" *ngIf="form.controls['email'].invalid && form.controls['email'].touched">Valid email is required.</p>
+
+    <div class="grid-two">
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" />
+        <p class="error" *ngIf="form.controls['password'].invalid && form.controls['password'].touched">6+ characters required.</p>
+      </div>
+      <div>
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" />
+        <p class="error" *ngIf="form.controls['confirmPassword'].invalid && form.controls['confirmPassword'].touched">Please confirm.</p>
+      </div>
+    </div>
 
     <label for="phone">Phone</label>
     <input id="phone" type="tel" formControlName="phone" />
@@ -18,13 +44,24 @@
 
     <label for="address">Address</label>
     <textarea id="address" rows="2" formControlName="address"></textarea>
+    <p class="error" *ngIf="form.controls['address'].invalid && form.controls['address'].touched">Address is required.</p>
 
     <label for="city">City</label>
     <input id="city" type="text" formControlName="city" />
+    <p class="error" *ngIf="form.controls['city'].invalid && form.controls['city'].touched">City is required.</p>
+
+    <label for="locationNote">Directions / landmark</label>
+    <input id="locationNote" type="text" formControlName="locationNote" placeholder="Near metro station" />
 
     <button type="submit" [disabled]="status === 'saving'">Create Profile</button>
   </form>
 
+  <div class="switcher">
+    <span>Already have an account?</span>
+    <a routerLink="/auth/login">Log in</a>
+  </div>
+
+  <p *ngIf="passwordMismatch" class="error">Passwords must match.</p>
   <p *ngIf="status === 'success'" class="success">Profile saved. You can start using the marketplace.</p>
-  <p *ngIf="status === 'error'" class="error">Could not save profile right now.</p>
+  <p *ngIf="status === 'error' && !passwordMismatch" class="error">{{ errorMessage || 'Could not save profile right now.' }}</p>
 </section>

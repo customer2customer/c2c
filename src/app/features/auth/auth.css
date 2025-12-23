@@ -6,7 +6,7 @@
   border-radius: 12px;
   background: #fff;
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 label {
@@ -29,6 +29,34 @@ button {
   color: #fff;
   border: none;
   cursor: pointer;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+button.google {
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid #d1d5db;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.switcher {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.switcher a {
+  color: #0ea5e9;
 }
 
 .error {

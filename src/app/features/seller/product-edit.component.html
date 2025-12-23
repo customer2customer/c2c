@@ -30,11 +30,20 @@
     <label>Stock quantity</label>
     <input type="number" formControlName="stock" />
 
+    <label>Video link (how it's made)</label>
+    <input type="url" formControlName="videoUrl" />
+
+    <label>Hover animation / gif</label>
+    <input type="url" formControlName="hoverMedia" />
+
     <label>
       <input type="checkbox" formControlName="courier" /> Courier delivery available
     </label>
     <label>
       <input type="checkbox" formControlName="directVisit" /> Direct visit/pickup available
+    </label>
+    <label>
+      <input type="checkbox" formControlName="isPreorderAvailable" /> Allow preorder when out of stock
     </label>
 
     <label>

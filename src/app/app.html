@@ -4,12 +4,13 @@
       <span class="glyph">◎</span>
       <div>
         <strong>{{ title }}</strong>
-        <small>Powered by Firebase</small>
+        <small>Powered by C2C</small>
       </div>
     </a>
 
     <div class="links">
       <a routerLink="/products" routerLinkActive="active">Products</a>
+      <a routerLink="/about" routerLinkActive="active">About</a>
       <a routerLink="/seller" routerLinkActive="active">Seller</a>
     </div>
 
@@ -18,7 +19,8 @@
       <button class="pill" (click)="logout()">Logout</button>
     </div>
     <ng-template #guest>
-      <button class="pill" (click)="goToLogin()">Login / Sign up</button>
+      <button class="pill ghost" (click)="goToLogin()">Login</button>
+      <button class="pill" (click)="goToSignup()">Sign up</button>
     </ng-template>
   </nav>
 
@@ -27,6 +29,6 @@
   </main>
 
   <footer>
-    <p>Built with Angular 21 and Firebase for community-to-community commerce.</p>
+    <p>© {{ currentYear }} C2C. Community-to-community commerce crafted with care.</p>
   </footer>
 </div>
