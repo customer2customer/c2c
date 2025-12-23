@@ -70,7 +70,12 @@ export class ProductCreateComponent {
         sellerRating: 4.5,
         reviewCount: 0,
         sellerContact: { phone: user?.phone ?? '+91-99999-11111', email: user?.email ?? '' },
-        sellerLocation: { address: user?.location?.address ?? '', city: user?.location?.city ?? '' },
+        sellerLocations: [
+          {
+            address: user?.location?.address ?? 'Community marketplace',
+            city: user?.location?.city ?? 'Local city'
+          }
+        ],
         deliveryOptions: { courier: Boolean(value.courier), directVisit: Boolean(value.directVisit) },
         availableDates: [],
         upcomingScheduled: [],

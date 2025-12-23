@@ -124,7 +124,9 @@ export class ProductService {
     }
 
     if (filters.city) {
-      filtered = filtered.filter((product) => product.sellerLocation.city === filters.city);
+      filtered = filtered.filter((product) =>
+        product.sellerLocations?.some((location) => location.city === filters.city)
+      );
     }
 
     if (filters.inStockOnly) {

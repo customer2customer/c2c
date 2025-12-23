@@ -25,7 +25,10 @@
       <span class="market">₹{{ product.marketPrice | number: '1.0-0' }}</span>
     </p>
     <div class="meta">
-      <span class="location">{{ product.sellerLocation.city }}</span>
+      <span class="location">
+        {{ product.sellerLocations[0]?.city }}
+        <ng-container *ngIf="product.sellerLocations.length > 1">(+{{ product.sellerLocations.length - 1 }} more)</ng-container>
+      </span>
       <span class="category">{{ product.category }}</span>
     </div>
   </div>

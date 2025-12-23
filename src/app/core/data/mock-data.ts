@@ -301,7 +301,10 @@ const buildProduct = (category: ProductCategory, productName: string, index: num
     sellerRating: seller.rating,
     reviewCount: 5 + index,
     sellerContact: { phone: seller.phone, email: seller.email },
-    sellerLocation: { address: `${seller.name} Storefront`, city: seller.city },
+    sellerLocations: [
+      { address: `${seller.name} Storefront`, city: seller.city },
+      { address: `${seller.city} community hub`, city: seller.city }
+    ],
     deliveryOptions: { courier: category !== 'services', directVisit: category !== 'services' },
     availableDates: [today.toISOString()],
     upcomingScheduled: [
