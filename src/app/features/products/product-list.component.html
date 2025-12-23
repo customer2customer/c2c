@@ -4,7 +4,7 @@
       <p class="eyebrow">Community Marketplace</p>
       <h1>Fresh drops from trusted neighbors</h1>
       <p class="subtitle">Browse beautiful listings, filter what you love, and tap through delightful product cards.</p>
-      <div class="actions">
+      <div class="actions" *ngIf="filtersVisible">
         <input
           type="search"
           placeholder="Search products, descriptions, or sellers"
@@ -23,10 +23,15 @@
         <p class="pill glass">Firebase backed</p>
         <p class="pill">Mobile-first UI</p>
       </div>
+      <img
+        class="gift"
+        src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzc5OXJ0ZXkxNG00eGMyaGVzeXhocHl0MmRrOWE0cGdnajh2azl3OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/l0ExncehJzexFpRHq/giphy.gif"
+        alt="Hover to see the animated gift"
+      />
     </div>
   </header>
 
-  <div class="filters">
+  <div class="filters" *ngIf="filtersVisible">
     <span
       *ngFor="let category of categories"
       class="chip"
@@ -36,6 +41,11 @@
       {{ category }}
     </span>
   </div>
+
+  <button class="filter-toggle" type="button" (click)="toggleFilters()" [attr.aria-expanded]="filtersVisible">
+    <span class="icon">☰</span>
+    <span>{{ filtersVisible ? 'Hide filters' : 'Show filters & categories' }}</span>
+  </button>
 
   <section class="grid">
     <app-product-card

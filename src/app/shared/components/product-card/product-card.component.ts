@@ -15,4 +15,14 @@ export class ProductCardComponent {
   get discountPercent(): number {
     return Math.round(((this.product.marketPrice - this.product.c2cPrice) / this.product.marketPrice) * 100);
   }
+
+  get stockLabel(): string {
+    if (this.product.availabilityStatus === 'preorder') {
+      return 'Preorder open';
+    }
+    if (this.product.stock === 0) {
+      return 'Out of stock';
+    }
+    return `${this.product.stock} left`;
+  }
 }

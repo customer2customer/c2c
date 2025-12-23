@@ -32,13 +32,35 @@
       <span>Price</span>
       <span>Stock</span>
       <span>Status</span>
+      <span>Actions</span>
     </div>
     <div class="table-row" *ngFor="let product of products; trackBy: trackByProductId">
       <span>{{ product.productName }}</span>
       <span>{{ product.category }}</span>
       <span>₹{{ product.c2cPrice | number: '1.0-0' }}</span>
       <span>{{ product.stock }}</span>
-      <span>{{ product.isActive ? 'Active' : 'Inactive' }}</span>
+      <span>{{ product.verificationStatus }} / {{ product.availabilityStatus }}</span>
+      <span class="actions">
+        <a class="secondary" [routerLink]="['/seller/edit', product.id]">Edit</a>
+        <button class="primary" type="button" (click)="deleteProduct(product.id)">Delete</button>
+      </span>
     </div>
+  </section>
+
+  <section class="admin-tools" *ngIf="isAdmin$ | async">
+    <div class="table-row table-head">
+      <span>Admin tools</span>
+      <span class="actions">
+        <button type="button" class="primary" (click)="loadSampleProducts()">Load sample data</button>
+        <button type="button" class="secondary" (click)="clearProducts()">Clear products</button>
+      </span>
+    </div>
+    <p class="hint" *ngIf="adminActionStatus$ | async as status">
+      <ng-container [ngSwitch]="status">
+        <span *ngSwitchCase="'working'">Processing request...</span>
+        <span *ngSwitchCase="'done'">Done updating the product catalog.</span>
+        <span *ngSwitchCase="'error'">Could not complete the admin action.</span>
+      </ng-container>
+    </p>
   </section>
 </section>

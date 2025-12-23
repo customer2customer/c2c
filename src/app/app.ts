@@ -13,6 +13,7 @@ import { User } from './shared/models/user.model';
 export class App {
   readonly title = 'C2C Marketplace';
   readonly currentUser$: Observable<User | null>;
+  readonly currentYear = new Date().getFullYear();
 
   constructor(private readonly authService: AuthService, private readonly router: Router) {
     this.currentUser$ = this.authService.getCurrentUser();
@@ -22,8 +23,12 @@ export class App {
     this.router.navigate(['/auth/login']);
   }
 
+  goToSignup(): void {
+    this.router.navigate(['/auth/signup']);
+  }
+
   goToAccount(): void {
-    this.router.navigate(['/seller']);
+    this.router.navigate(['/account']);
   }
 
   logout(): void {

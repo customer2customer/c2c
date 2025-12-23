@@ -1,0 +1,72 @@
+<section class="account-card">
+  <header>
+    <div>
+      <p class="eyebrow">Customer settings</p>
+      <h1>Profile & details</h1>
+      <p>Review the information collected during signup and update it anytime.</p>
+    </div>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <div class="grid-two">
+      <label>
+        First name
+        <input type="text" formControlName="firstName" />
+        <span class="error" *ngIf="form.controls['firstName'].invalid && form.controls['firstName'].touched">Required</span>
+      </label>
+      <label>
+        Last name
+        <input type="text" formControlName="lastName" />
+        <span class="error" *ngIf="form.controls['lastName'].invalid && form.controls['lastName'].touched">Required</span>
+      </label>
+    </div>
+
+    <label>
+      Email
+      <input type="email" formControlName="email" />
+      <span class="error" *ngIf="form.controls['email'].invalid && form.controls['email'].touched">Enter a valid email</span>
+    </label>
+
+    <label>
+      Phone
+      <input type="tel" formControlName="phone" />
+      <span class="error" *ngIf="form.controls['phone'].invalid && form.controls['phone'].touched">10-digit number required</span>
+    </label>
+
+    <label>
+      Address
+      <textarea rows="2" formControlName="address"></textarea>
+      <span class="error" *ngIf="form.controls['address'].invalid && form.controls['address'].touched">Address is required</span>
+    </label>
+
+    <div class="grid-two">
+      <label>
+        City
+        <input type="text" formControlName="city" />
+        <span class="error" *ngIf="form.controls['city'].invalid && form.controls['city'].touched">City is required</span>
+      </label>
+      <label>
+        Directions / landmark
+        <input type="text" formControlName="locationNote" />
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="submit" [disabled]="status === 'saving'">Save changes</button>
+      <span class="success" *ngIf="status === 'saved'">Saved!</span>
+      <span class="error" *ngIf="status === 'error'">Unable to save right now.</span>
+    </div>
+  </form>
+
+  <section class="reset" *ngIf="isPasswordUser">
+    <h3>Password</h3>
+    <p>Need to change your password? We'll send a reset link to {{ currentEmail }}.</p>
+    <div class="actions">
+      <button type="button" class="secondary" (click)="resetPassword()" [disabled]="resetStatus === 'sending'">
+        Send reset email
+      </button>
+      <span class="success" *ngIf="resetStatus === 'sent'">Reset link sent.</span>
+      <span class="error" *ngIf="resetStatus === 'error'">Could not send reset link.</span>
+    </div>
+  </section>
+</section>

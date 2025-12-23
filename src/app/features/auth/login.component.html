@@ -1,6 +1,6 @@
 <section class="auth-card">
-  <h1>Login with email</h1>
-  <p>We will send you a passwordless magic link.</p>
+  <h1>Login</h1>
+  <p>Use magic link, email/password, or Google to sign in securely.</p>
 
   <form [formGroup]="form" (ngSubmit)="sendLink()" novalidate>
     <label for="email">Email</label>
@@ -10,6 +10,24 @@
     <button type="submit" [disabled]="status === 'sending'">Send Magic Link</button>
   </form>
 
-  <p *ngIf="status === 'sent'" class="success">Check your email for the login link.</p>
+  <div class="divider">or</div>
+
+  <form [formGroup]="form" (ngSubmit)="loginWithPassword()" novalidate>
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" placeholder="••••••••" />
+    <p class="error" *ngIf="passwordStatus === 'error' && errorMessage">{{ errorMessage }}</p>
+
+    <button type="submit" [disabled]="passwordStatus === 'working'">Login with password</button>
+    <p class="success" *ngIf="passwordStatus === 'success'">Logged in successfully.</p>
+  </form>
+
+  <button class="google" type="button" (click)="loginWithGoogle()" [disabled]="status === 'sending'">Continue with Google</button>
+
+  <div class="switcher">
+    <span>Need an account?</span>
+    <a routerLink="/auth/signup">Sign up</a>
+  </div>
+
+  <p *ngIf="status === 'sent'" class="success">{{ confirmationMessage || 'Check your email for the login link.' }}</p>
   <p *ngIf="status === 'error'" class="error">{{ errorMessage }}</p>
 </section>

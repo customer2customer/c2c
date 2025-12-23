@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, DocumentData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, deleteDoc, doc, DocumentData, getDocs, setDoc } from '@angular/fire/firestore';
 import { Timestamp } from 'firebase/firestore';
-import { BehaviorSubject, Observable, catchError, map, tap } from 'rxjs';
-import { Product } from '../../shared/models/product.model';
+import { BehaviorSubject, Observable, catchError, from, map, of, switchMap, tap } from 'rxjs';
+import { Product, VerificationStatus } from '../../shared/models/product.model';
 import { User } from '../../shared/models/user.model';
 import { MOCK_PRODUCTS, MOCK_USERS } from './mock-data';
 
 @Injectable({ providedIn: 'root' })
 export class DataLoaderService {
-  private readonly fallbackProducts$ = new BehaviorSubject<Product[]>(MOCK_PRODUCTS);
+  private readonly fallbackProducts$ = new BehaviorSubject<Product[]>([]);
   private readonly users$ = new BehaviorSubject<User[]>(MOCK_USERS);
 
   private readonly generateId = (): string => {
@@ -27,7 +27,7 @@ export class DataLoaderService {
       map((docs) =>
         docs.map((doc) => this.normalizeProduct(doc as Partial<Product> & DocumentData))
       ),
-      tap((products) => {
+      tap((products: Product[]) => {
         if (products.length) {
           this.fallbackProducts$.next(products);
         }
@@ -35,6 +35,27 @@ export class DataLoaderService {
       catchError((error) => {
         console.error('Falling back to local mock products because Firestore failed:', error);
         return this.fallbackProducts$;
+      })
+    );
+  }
+
+  loadSampleProducts(): Observable<void> {
+    const productsRef = collection(this.firestore, 'products');
+    const tasks = MOCK_PRODUCTS.map((product) => {
+      const ref = doc(productsRef, product.id);
+      return setDoc(ref, { ...product, createdAt: product.createdAt ?? new Date(), updatedAt: new Date() });
+    });
+    return from(Promise.all(tasks)).pipe(map(() => void 0));
+  }
+
+  clearProducts(): Observable<void> {
+    const productsRef = collection(this.firestore, 'products');
+    return from(getDocs(productsRef)).pipe(
+      switchMap((snapshot) => from(Promise.all(snapshot.docs.map((docSnap) => deleteDoc(docSnap.ref))))),
+      map(() => void 0),
+      catchError((error) => {
+        console.error('Failed to clear products', error);
+        return of(void 0);
       })
     );
   }
@@ -75,11 +96,20 @@ export class DataLoaderService {
       sellerName: product.sellerName ?? 'Community Seller',
       sellerRating: product.sellerRating ?? 4.8,
       reviewCount: product.reviewCount ?? 12,
+      sellerContact: product.sellerContact ?? { phone: '+91-9876543210', email: 'seller@example.com' },
       sellerLocation: product.sellerLocation ?? { address: 'Community Market', city: 'Pune' },
       deliveryOptions: product.deliveryOptions ?? { courier: true, directVisit: true },
       availableDates: product.availableDates ?? [],
       upcomingScheduled: product.upcomingScheduled ?? [],
       isActive: product.isActive ?? true,
+      availabilityStatus: product.availabilityStatus ?? 'inStock',
+      isPreorderAvailable: product.isPreorderAvailable ?? false,
+      videoUrl: product.videoUrl ?? undefined,
+      hoverMedia: product.hoverMedia ?? undefined,
+      verificationStatus: (product.verificationStatus as VerificationStatus) ?? 'verified',
+      createdById: product.createdById ?? product.sellerId ?? 'community-seller',
+      createdByEmail: product.createdByEmail ?? 'unknown@c2c.local',
+      createdByName: product.createdByName ?? product.sellerName ?? 'Community Seller',
       createdAt: toDate(product.createdAt),
       updatedAt: toDate(product.updatedAt)
     };

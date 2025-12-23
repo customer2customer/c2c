@@ -1,4 +1,6 @@
 export type ProductCategory = 'groceries' | 'vegetables' | 'clothing' | 'services' | 'dairy' | 'homemade';
+export type AvailabilityStatus = 'inStock' | 'outOfStock' | 'preorder';
+export type VerificationStatus = 'pending' | 'verified';
 
 export interface Product {
   id: string; // Firestore auto-generated
@@ -15,6 +17,11 @@ export interface Product {
   sellerName: string; // Denormalized for display
   sellerRating: number; // Current seller rating (0-5)
   reviewCount: number; // Number of reviews
+  sellerContact: {
+    phone: string;
+    email?: string;
+    whatsapp?: string;
+  };
   sellerLocation: {
     address: string;
     city: string;
@@ -31,6 +38,14 @@ export interface Product {
     quantity: number;
   }>;
   isActive: boolean; // Soft delete flag
+  availabilityStatus: AvailabilityStatus;
+  isPreorderAvailable: boolean;
+  videoUrl?: string;
+  hoverMedia?: string;
+  verificationStatus: VerificationStatus;
+  createdById?: string;
+  createdByEmail?: string;
+  createdByName?: string;
   createdAt?: Date; // Firestore Timestamp
   updatedAt?: Date; // Firestore Timestamp
 }
