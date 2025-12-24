@@ -1,0 +1,40 @@
+<section class="requests">
+  <header>
+    <h1>Request a product or service</h1>
+    <p>Tell admins what you need. Approved requests are shown publicly for providers to pick up.</p>
+  </header>
+
+  <section class="grid">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="card">
+      <h3>Submit a request</h3>
+      <label>Title<input formControlName="title" /></label>
+      <label>Category<input formControlName="category" /></label>
+      <label>Description<textarea rows="3" formControlName="description"></textarea></label>
+      <button type="submit">Send request</button>
+      <p class="error" *ngIf="status === 'error'">Could not send request.</p>
+    </form>
+
+    <article class="card">
+      <h3>Approved requests</h3>
+      <ul>
+        <li *ngFor="let item of approved$ | async">
+          <strong>{{ item.title }}</strong>
+          <p>{{ item.description }}</p>
+          <small>By {{ item.requesterName }}</small>
+        </li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card" *ngIf="(myRequests$ | async)?.length">
+    <h3>Your submissions</h3>
+    <div *ngFor="let req of myRequests$ | async" class="row">
+      <div>
+        <strong>{{ req.title }}</strong>
+        <p>{{ req.description }}</p>
+        <small>Status: {{ req.approved ? 'Approved' : 'Pending admin review' }}</small>
+      </div>
+      <button type="button" (click)="update(req)">Mark for re-review</button>
+    </div>
+  </section>
+</section>

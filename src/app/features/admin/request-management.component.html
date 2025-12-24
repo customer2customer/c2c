@@ -1,0 +1,29 @@
+<section class="panel">
+  <header>
+    <h2>Product/service requests</h2>
+    <p>Approve customer submitted needs so they appear on the public request board.</p>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Requester</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let request of requests$ | async">
+        <td>{{ request.title }}<br /><small>{{ request.description }}</small></td>
+        <td>{{ request.requesterName }}<br /><small>{{ request.requesterEmail }}</small></td>
+        <td>{{ request.approved ? 'Approved' : 'Pending' }}</td>
+        <td>
+          <button type="button" (click)="verify(request, true)">Approve</button>
+          <button type="button" (click)="verify(request, false)">Reset</button>
+          <button type="button" class="danger" (click)="delete(request)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

@@ -13,6 +13,7 @@ export interface User {
   name: string; // User's full name
   phone?: string; // 10-digit phone number
   userType: UserType;
+  isAdmin?: boolean;
   avatar?: string; // Profile image URL
   location?: UserLocation;
   trustScore: number; // 0-5 stars

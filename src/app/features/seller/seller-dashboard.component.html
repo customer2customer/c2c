@@ -75,20 +75,4 @@
     </ng-container>
   </section>
 
-  <section class="admin-tools" *ngIf="isAdmin$ | async">
-    <div class="table-row table-head">
-      <span>Admin tools</span>
-      <span class="actions">
-        <button type="button" class="primary" (click)="loadSampleProducts()">Load sample data</button>
-        <button type="button" class="secondary" (click)="clearProducts()">Clear products</button>
-      </span>
-    </div>
-    <p class="hint" *ngIf="adminActionStatus$ | async as status">
-      <ng-container [ngSwitch]="status">
-        <span *ngSwitchCase="'working'">Processing request...</span>
-        <span *ngSwitchCase="'done'">Done updating the product catalog.</span>
-        <span *ngSwitchCase="'error'">Could not complete the admin action.</span>
-      </ng-container>
-    </p>
-  </section>
 </section>

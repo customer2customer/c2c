@@ -322,6 +322,24 @@ const buildProduct = (category: ProductCategory, productName: string, index: num
     createdById: creator.id,
     createdByEmail: creator.email,
     createdByName: creator.name,
+    ratings: [
+      {
+        userId: 'customer-c2c1',
+        userName: 'C2C One',
+        comment: 'Fresh and reliable',
+        rating: 4,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        userId: 'customer-c2c2',
+        userName: 'C2C Two',
+        comment: 'Loved it',
+        rating: 5,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ],
     createdAt: new Date(),
     updatedAt: new Date()
   };
@@ -349,6 +367,7 @@ export const MOCK_CUSTOMERS: CustomerProfile[] = [
     address: 'Community Road 5',
     city: 'Hyderabad',
     locationNote: 'Near the lakeside park',
+    points: 2,
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -361,6 +380,7 @@ export const MOCK_CUSTOMERS: CustomerProfile[] = [
     address: 'Sunrise Residency',
     city: 'Hyderabad',
     locationNote: 'Block A',
+    points: 3,
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -373,6 +393,7 @@ export const MOCK_CUSTOMERS: CustomerProfile[] = [
     address: 'Park View Lane',
     city: 'Bengaluru',
     locationNote: 'Next to lake',
+    points: 1,
     createdAt: new Date(),
     updatedAt: new Date()
   }

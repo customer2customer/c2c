@@ -2,6 +2,15 @@ export type ProductCategory = 'groceries' | 'vegetables' | 'clothing' | 'service
 export type AvailabilityStatus = 'inStock' | 'outOfStock' | 'preorder';
 export type VerificationStatus = 'pending' | 'verified';
 
+export interface ProductRating {
+  userId: string;
+  userName: string;
+  comment?: string;
+  rating: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Product {
   id: string; // Firestore auto-generated
   productName: string; // 3-200 chars
@@ -46,6 +55,7 @@ export interface Product {
   createdById?: string;
   createdByEmail?: string;
   createdByName?: string;
+  ratings?: ProductRating[];
   createdAt?: Date; // Firestore Timestamp
   updatedAt?: Date; // Firestore Timestamp
 }

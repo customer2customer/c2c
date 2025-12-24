@@ -1,0 +1,68 @@
+<section class="panel">
+  <header>
+    <h2>Manage customers</h2>
+    <p>Create, update or remove customers. Points are used to gate product visibility.</p>
+  </header>
+
+  <form [formGroup]="customerForm" (ngSubmit)="createCustomer()" class="grid">
+    <label>First name<input formControlName="firstName" /></label>
+    <label>Last name<input formControlName="lastName" /></label>
+    <label>Email<input formControlName="email" type="email" /></label>
+    <label>Phone<input formControlName="phone" /></label>
+    <label>Address<input formControlName="address" /></label>
+    <label>City<input formControlName="city" /></label>
+    <label>Password<input formControlName="password" type="password" /></label>
+    <label>Points<input formControlName="points" type="number" min="0" /></label>
+    <div class="actions">
+      <button type="submit">Create customer</button>
+      <span class="success" *ngIf="status$ | async as status" [hidden]="status !== 'saved'">Saved</span>
+      <span class="error" *ngIf="status$ | async as status2" [hidden]="status2 !== 'error'">Failed</span>
+    </div>
+  </form>
+
+  <section class="list">
+    <header class="list__header">
+      <h3>Existing customers</h3>
+      <form [formGroup]="pointsForm" (ngSubmit)="updatePoints()" class="inline-form">
+        <label>Points<input type="number" formControlName="points" min="0" /></label>
+        <label>
+          Apply to
+          <select formControlName="mode">
+            <option value="selected">Selected</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+        <button type="submit">Apply points</button>
+      </form>
+    </header>
+
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" (change)="toggleSelection('all', $any($event.target).checked)" disabled /></th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Points</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of customersWithSelection$ | async">
+          <td>
+            <input
+              type="checkbox"
+              [checked]="customer.selected"
+              (change)="toggleSelection(customer.id, $any($event.target).checked)"
+            />
+          </td>
+          <td>{{ customer.firstName }} {{ customer.lastName }}</td>
+          <td>{{ customer.email }}</td>
+          <td>{{ customer.points }}</td>
+          <td>
+            <button type="button" class="danger" (click)="deleteCustomer(customer)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</section>

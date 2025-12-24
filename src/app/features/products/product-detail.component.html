@@ -42,6 +42,28 @@
       </ul>
     </section>
 
+    <section class="ratings">
+      <h3>Ratings</h3>
+      <p class="average">Average: {{ average(product) }} ★</p>
+      <form (ngSubmit)="submitRating(product)">
+        <label>
+          Your rating
+          <input type="number" [(ngModel)]="ratingValue" name="rating" min="1" max="5" />
+        </label>
+        <label>
+          Comment (optional)
+          <textarea name="comment" [(ngModel)]="ratingComment" maxlength="100"></textarea>
+        </label>
+        <button type="submit">Submit rating</button>
+      </form>
+      <ul>
+        <li *ngFor="let rating of product.ratings || []">
+          <strong>{{ rating.userName }}</strong> • {{ rating.rating }} ★
+          <p>{{ rating.comment }}</p>
+        </li>
+      </ul>
+    </section>
+
     <section *ngIf="product.videoUrl" class="video">
       <h3>How this product is made</h3>
       <iframe
