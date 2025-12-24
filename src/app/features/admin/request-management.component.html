@@ -1,7 +1,16 @@
 <section class="panel">
+  <div class="loading-overlay" *ngIf="status$ | async as status" [hidden]="status !== 'working'">
+    <div class="spinner" aria-label="Updating requests"></div>
+  </div>
   <header>
     <h2>Product/service requests</h2>
     <p>Approve customer submitted needs so they appear on the public request board.</p>
+    <div class="actions">
+      <button type="button" (click)="loadSamples()">Load sample data</button>
+      <button type="button" class="ghost" (click)="clear()">Clear data</button>
+      <span class="success" *ngIf="status$ | async as status" [hidden]="status !== 'idle'">Ready</span>
+      <span class="error" *ngIf="status$ | async as status2" [hidden]="status2 !== 'error'">Error</span>
+    </div>
   </header>
 
   <table>

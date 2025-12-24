@@ -18,6 +18,20 @@ export class RequestManagementComponent {
     this.requests$ = this.requestService.getAll();
   }
 
+  loadSamples(): void {
+    this.status$.next('working');
+    this.requestService
+      .loadSamples()
+      .subscribe({ next: () => this.status$.next('idle'), error: () => this.status$.next('error') });
+  }
+
+  clear(): void {
+    this.status$.next('working');
+    this.requestService
+      .clear()
+      .subscribe({ next: () => this.status$.next('idle'), error: () => this.status$.next('error') });
+  }
+
   verify(request: ProductRequest, approved: boolean): void {
     this.status$.next('working');
     this.requestService

@@ -1,28 +1,43 @@
 <div class="layout">
   <nav class="navbar">
     <a class="brand" routerLink="/">
-      <span class="glyph">◎</span>
       <div>
         <strong>{{ title }}</strong>
         <small>Powered by C2C</small>
       </div>
     </a>
 
-    <div class="links">
-      <a routerLink="/products" routerLinkActive="active">Products</a>
-      <a *ngIf="(currentUser$ | async)?.isAdmin" routerLink="/admin" routerLinkActive="active">Admin</a>
-      <a routerLink="/about" routerLinkActive="active">About</a>
-      <a routerLink="/seller" routerLinkActive="active">Seller</a>
-    </div>
+    <button class="menu-toggle" (click)="toggleMenu()" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-    <div class="session" *ngIf="currentUser$ | async as user; else guest">
-      <button class="pill ghost" (click)="goToAccount()">Hi, {{ user.name }}</button>
-      <button class="pill" (click)="logout()">Logout</button>
+    <div class="links" [class.open]="menuOpen">
+      <a routerLink="/products" routerLinkActive="active" (click)="menuOpen = false">Products</a>
+      <a *ngIf="(currentUser$ | async)?.isAdmin" routerLink="/admin" routerLinkActive="active" (click)="menuOpen = false"
+        >Admin</a
+      >
+      <a routerLink="/about" routerLinkActive="active" (click)="menuOpen = false">About</a>
+      <a routerLink="/seller" routerLinkActive="active" (click)="menuOpen = false">Seller</a>
+      <a
+        *ngIf="currentUser$ | async"
+        routerLink="/products/requests"
+        routerLinkActive="active"
+        (click)="menuOpen = false"
+        >Request a product/service</a
+      >
+      <div class="session" *ngIf="currentUser$ | async as user; else guest">
+        <button class="pill ghost" (click)="goToAccount()">Hi, {{ user.name }}</button>
+        <button class="pill" (click)="logout()">Logout</button>
+      </div>
+      <ng-template #guest>
+        <div class="session">
+          <button class="pill ghost" (click)="goToSignup()">Sign up</button>
+          <button class="pill" (click)="goToLogin()">Login</button>
+        </div>
+      </ng-template>
     </div>
-    <ng-template #guest>
-      <button class="pill ghost" (click)="goToLogin()">Login</button>
-      <button class="pill" (click)="goToSignup()">Sign up</button>
-    </ng-template>
   </nav>
 
   <main>

@@ -1,21 +1,41 @@
-import { Injectable } from '@angular/core';
-import { Firestore, addDoc, collection, collectionData } from '@angular/fire/firestore';
-import { from, map, Observable } from 'rxjs';
-import { Product } from '../../shared/models/product.model';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
+import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
+import { Auth, getAuth } from 'firebase/auth';
+import { Firestore, getFirestore } from 'firebase/firestore';
+import { firebaseConfig } from './firebase.config';
+
+export const FIREBASE_APP = new InjectionToken<FirebaseApp>('FIREBASE_APP');
+export const FIREBASE_AUTH = new InjectionToken<Auth>('FIREBASE_AUTH');
+export const FIREBASE_FIRESTORE = new InjectionToken<Firestore>('FIREBASE_FIRESTORE');
+
+export function provideFirebaseAppInstance(): FirebaseApp {
+  if (getApps().length) {
+    return getApp();
+  }
+  return initializeApp(firebaseConfig);
+}
+
+export function provideFirebaseAuthInstance(app: FirebaseApp): Auth {
+  return getAuth(app);
+}
+
+export function provideFirebaseFirestoreInstance(app: FirebaseApp): Firestore {
+  return getFirestore(app);
+}
 
 @Injectable({ providedIn: 'root' })
 export class FirebaseService {
-  constructor(private readonly firestore: Firestore) {}
+  constructor(
+    @Inject(FIREBASE_APP) private app: FirebaseApp,
+    @Inject(FIREBASE_AUTH) private auth: Auth,
+    @Inject(FIREBASE_FIRESTORE) private firestore: Firestore
+  ) {}
 
-  fetchCollection<T>(collectionName: string): Observable<T[]> {
-    const collectionRef = collection(this.firestore, collectionName);
-    return collectionData(collectionRef, { idField: 'id' }) as Observable<T[]>;
+  getFirestore(): Firestore {
+    return this.firestore;
   }
 
-  saveProduct(product: Product): Observable<Product> {
-    const collectionRef = collection(this.firestore, 'products');
-    return from(addDoc(collectionRef, product)).pipe(
-      map((docRef) => ({ ...product, id: docRef.id }))
-    );
+  getAuth(): Auth {
+    return this.auth;
   }
 }

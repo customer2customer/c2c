@@ -3,6 +3,8 @@
   border: 1px solid #e5e5e5;
   border-radius: 12px;
   padding: 16px;
+  position: relative;
+  overflow: hidden;
 }
 
 table {
@@ -19,4 +21,34 @@ td {
 button.danger {
   background: #ff7676;
   color: #fff;
+}
+
+button {
+  border-radius: 10px;
+  border: 1px solid #d8dee9;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #2563eb, #22c55e);
+  color: #fff;
+  font-weight: 700;
+}
+
+button.ghost {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.success {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.error {
+  color: #b91c1c;
 }

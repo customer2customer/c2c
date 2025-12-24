@@ -1,8 +1,7 @@
 .page {
   display: grid;
   gap: 24px;
-  padding: 20px 4px 32px;
-  animation: fadeIn 240ms ease;
+  padding: 16px 4px 20px;
 }
 
 .search-panel {
@@ -88,8 +87,7 @@
   background: #0ea5e9;
   color: #f8fafc;
   font-weight: 700;
-  box-shadow: 0 14px 30px rgba(14, 165, 233, 0.2);
-  animation: float 4s ease-in-out infinite;
+  box-shadow: 0 14px 30px rgba(14, 165, 233, 0.12);
 }
 
 .pill.glass {
@@ -166,21 +164,11 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
   }
 }
 
