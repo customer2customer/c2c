@@ -1,4 +1,7 @@
 <section class="panel">
+  <div class="loading-overlay" *ngIf="actionStatus$ | async as status" [hidden]="status !== 'working'">
+    <div class="spinner" aria-label="Updating products"></div>
+  </div>
   <header>
     <h2>Manage products</h2>
     <p>Approve, verify and clean up marketplace listings. Created by details remain visible.</p>

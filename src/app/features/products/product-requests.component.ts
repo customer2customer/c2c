@@ -19,7 +19,16 @@ export class ProductRequestsComponent {
 
   form;
 
-  status: 'idle' | 'saving' | 'error' = 'idle';
+  categories = [
+    { value: 'groceries', label: 'Groceries' },
+    { value: 'vegetables', label: 'Vegetables' },
+    { value: 'services', label: 'Services' },
+    { value: 'dairy', label: 'Dairy' },
+    { value: 'clothing', label: 'Clothing' },
+    { value: 'homemade', label: 'Homemade' }
+  ];
+
+  status: 'idle' | 'saving' | 'error' | 'loading' = 'idle';
 
   constructor(
     private readonly fb: FormBuilder,
@@ -62,6 +71,18 @@ export class ProductRequestsComponent {
       console.error(error);
       this.status = 'error';
     }
+  }
+
+  loadSamples(): void {
+    this.status = 'loading';
+    this.requestService
+      .loadSamples()
+      .subscribe({ next: () => (this.status = 'idle'), error: () => (this.status = 'error') });
+  }
+
+  clearAll(): void {
+    this.status = 'loading';
+    this.requestService.clear().subscribe({ next: () => (this.status = 'idle'), error: () => (this.status = 'error') });
   }
 
   async update(request: ProductRequest): Promise<void> {

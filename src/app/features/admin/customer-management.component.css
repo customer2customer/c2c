@@ -6,6 +6,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+  overflow: hidden;
 }
 
 .grid {
@@ -14,10 +16,44 @@
   gap: 8px;
 }
 
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+input,
+select,
+textarea,
+button {
+  border-radius: 10px;
+  border: 1px solid #d8dee9;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #2563eb;
+  border-color: #2563eb;
+}
+
 .actions {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.actions button {
+  background: linear-gradient(135deg, #2563eb, #22c55e);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
 }
 
 .list table {
@@ -38,7 +74,22 @@
   align-items: center;
 }
 
+.inline-form select,
+.inline-form input {
+  min-width: 120px;
+}
+
 button.danger {
   background: #ff7676;
   color: #fff;
+}
+
+.error {
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.success {
+  color: #15803d;
+  font-weight: 700;
 }

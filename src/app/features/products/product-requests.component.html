@@ -1,15 +1,41 @@
 <section class="requests">
-  <header>
-    <h1>Request a product or service</h1>
-    <p>Tell admins what you need. Approved requests are shown publicly for providers to pick up.</p>
+  <div class="loading-overlay" *ngIf="status === 'saving' || status === 'loading'">
+    <div class="spinner" aria-label="Saving request"></div>
+  </div>
+  <header class="header">
+    <div>
+      <h1>Request a product or service</h1>
+      <p>Tell admins what you need. Approved requests are shown publicly for providers to pick up.</p>
+    </div>
+    <div class="actions">
+      <button type="button" (click)="loadSamples()">Load sample data</button>
+      <button type="button" class="ghost" (click)="clearAll()">Clear data</button>
+    </div>
   </header>
 
   <section class="grid">
-    <form [formGroup]="form" (ngSubmit)="submit()" class="card">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="card" novalidate>
       <h3>Submit a request</h3>
-      <label>Title<input formControlName="title" /></label>
-      <label>Category<input formControlName="category" /></label>
-      <label>Description<textarea rows="3" formControlName="description"></textarea></label>
+      <label>
+        Title
+        <input formControlName="title" placeholder="E.g. Need organic veggies" required />
+        <small class="error" *ngIf="form.controls['title'].invalid && form.controls['title'].touched"
+          >Please enter at least 3 characters.</small
+        >
+      </label>
+      <label>
+        Category
+        <select formControlName="category">
+          <option *ngFor="let option of categories" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </label>
+      <label>
+        Description
+        <textarea rows="3" formControlName="description" placeholder="Add details so admins can help faster"></textarea>
+        <small class="error" *ngIf="form.controls['description'].invalid && form.controls['description'].touched"
+          >Description is required.</small
+        >
+      </label>
       <button type="submit">Send request</button>
       <p class="error" *ngIf="status === 'error'">Could not send request.</p>
     </form>

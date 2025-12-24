@@ -3,6 +3,8 @@
   border: 1px solid #e5e5e5;
   border-radius: 12px;
   padding: 16px;
+  position: relative;
+  overflow: hidden;
 }
 
 table {
@@ -22,7 +24,28 @@ td {
   align-items: center;
 }
 
+select,
+button {
+  border-radius: 10px;
+  border: 1px solid #d8dee9;
+  padding: 10px 12px;
+  font-weight: 700;
+}
+
+select {
+  background: linear-gradient(135deg, #f8fafc, #e5edff);
+  color: #0f172a;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
 button.danger {
   background: #ff7676;
   color: #fff;
+}
+
+button {
+  background: linear-gradient(135deg, #2563eb, #22c55e);
+  color: #fff;
+  border: none;
+  cursor: pointer;
 }

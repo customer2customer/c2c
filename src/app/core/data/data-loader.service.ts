@@ -1,55 +1,43 @@
 import { Injectable } from '@angular/core';
 import {
-  Firestore,
+  CollectionReference,
+  DocumentData,
   Timestamp,
   collection,
   deleteDoc,
   doc,
-  DocumentData,
   getDocs,
   onSnapshot,
-  query,
-  setDoc,
-  where
-} from '@angular/fire/firestore';
-import { BehaviorSubject, Observable, catchError, from, map, of, switchMap } from 'rxjs';
+  serverTimestamp,
+  setDoc
+} from 'firebase/firestore';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { Product, ProductRating, VerificationStatus } from '../../shared/models/product.model';
 import { User } from '../../shared/models/user.model';
-import { MOCK_PRODUCTS, MOCK_USERS } from './mock-data';
+import { FirebaseService } from '../firebase/firebase.service';
+import { MOCK_PRODUCTS } from './mock-data';
 
 @Injectable({ providedIn: 'root' })
 export class DataLoaderService {
   private readonly products$ = new BehaviorSubject<Product[]>([]);
-  private readonly users$ = new BehaviorSubject<User[]>(MOCK_USERS);
+  private readonly users$ = new BehaviorSubject<User[]>([]);
+  private readonly productCollection: CollectionReference<DocumentData>;
+  private readonly userCollection: CollectionReference<DocumentData>;
 
-  private readonly generateId = (): string => {
-    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-      return crypto.randomUUID();
-    }
-    return `product-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  };
+  constructor(private readonly firebase: FirebaseService) {
+    const firestore = this.firebase.getFirestore();
+    this.productCollection = collection(firestore, 'products');
+    this.userCollection = collection(firestore, 'users');
 
-  constructor(private readonly firestore: Firestore) {
-    const productsQuery = query(
-      collection(this.firestore, 'products'),
-      where('isActive', '==', true),
-      where('verificationStatus', '==', 'verified')
-    );
+    onSnapshot(this.productCollection, (snapshot) => {
+      const products = snapshot.docs.map((docSnap) => this.normalizeProduct({ id: docSnap.id, ...docSnap.data() }));
+      this.products$.next(products);
+    });
 
-    onSnapshot(
-      productsQuery,
-      (snapshot) => {
-        const products: Product[] = [];
-        snapshot.forEach((doc) => {
-          products.push(this.normalizeProduct({ id: doc.id, ...doc.data() }));
-        });
-        this.products$.next(products);
-      },
-      (error) => {
-        console.error('Failed to load products from Firestore:', error);
-        this.products$.next([]);
-      }
-    );
+    onSnapshot(this.userCollection, (snapshot) => {
+      const users = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...(docSnap.data() as any) })) as User[];
+      this.users$.next(users);
+    });
   }
 
   getProducts(): Observable<Product[]> {
@@ -57,31 +45,51 @@ export class DataLoaderService {
   }
 
   loadSampleProducts(): Observable<void> {
-    const productsRef = collection(this.firestore, 'products');
-    const tasks = MOCK_PRODUCTS.map((product) => {
-      const ref = doc(productsRef, product.id);
-      return setDoc(ref, { ...product, createdAt: product.createdAt ?? new Date(), updatedAt: new Date() });
+    const writes = MOCK_PRODUCTS.map((product) => {
+      const id = product.id ?? doc(this.productCollection).id;
+      const payload = this.normalizeProduct({ ...product, id });
+      return setDoc(doc(this.productCollection, id), {
+        ...payload,
+        createdAt: payload.createdAt ?? serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
     });
-    return from(Promise.all(tasks)).pipe(map(() => void 0));
+
+    return from(Promise.all(writes).then(() => void 0));
   }
 
   clearProducts(): Observable<void> {
-    const productsRef = collection(this.firestore, 'products');
-    return from(getDocs(productsRef)).pipe(
-      switchMap((snapshot) => from(Promise.all(snapshot.docs.map((docSnap) => deleteDoc(docSnap.ref))))),
-      map(() => void 0),
-      catchError((error) => {
-        console.error('Failed to clear products', error);
-        return of(void 0);
-      })
-    );
+    const deleteAll = async (): Promise<void> => {
+      const existing = await getDocs(this.productCollection);
+      await Promise.all(existing.docs.map((docSnap) => deleteDoc(docSnap.ref)));
+    };
+    return from(deleteAll());
+  }
+
+  async addProduct(product: Product): Promise<Product> {
+    const payload = this.normalizeProduct({ ...product, id: product.id ?? doc(this.productCollection).id });
+    await setDoc(doc(this.productCollection, payload.id), {
+      ...payload,
+      createdAt: payload.createdAt ?? serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return payload;
+  }
+
+  async updateProduct(product: Product): Promise<void> {
+    const payload = this.normalizeProduct(product);
+    await setDoc(doc(this.productCollection, payload.id), { ...payload, updatedAt: serverTimestamp() }, { merge: true });
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    await deleteDoc(doc(this.productCollection, id));
   }
 
   getUsers(): Observable<User[]> {
     return this.users$.asObservable();
   }
 
-  private normalizeProduct(product: Partial<Product> & DocumentData): Product {
+  private normalizeProduct(product: Partial<Product>): Product {
     const toDate = (value: unknown): Date | undefined => {
       if ((value as Timestamp)?.toDate) {
         return (value as Timestamp).toDate();
@@ -120,7 +128,7 @@ export class DataLoaderService {
     };
 
     return {
-      id: product.id ?? this.generateId(),
+      id: product.id ?? doc(this.productCollection).id,
       productName: product.productName ?? 'Community product',
       description:
         product.description ??

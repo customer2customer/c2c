@@ -1,67 +1,75 @@
 import { Injectable } from '@angular/core';
-import { Timestamp, collection, collectionData, deleteDoc, doc, docData, Firestore, setDoc, updateDoc } from '@angular/fire/firestore';
-import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, Auth as FirebaseAuth } from 'firebase/auth';
-import { Observable, map } from 'rxjs';
+import {
+  CollectionReference,
+  DocumentData,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  updateDoc
+} from 'firebase/firestore';
+import { BehaviorSubject, Observable, map } from 'rxjs';
 import { CustomerProfile } from '../../shared/models/customer.model';
-import { firebaseConfig } from '../firebase/firebase.config';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
-  private readonly secondaryAuth: FirebaseAuth;
+  private readonly customers$ = new BehaviorSubject<CustomerProfile[]>([]);
+  private readonly collectionRef: CollectionReference<DocumentData>;
 
-  constructor(private readonly firestore: Firestore) {
-    // Use a secondary Firebase app so admin-created accounts do not affect the current session
-    const secondaryApp = initializeApp(firebaseConfig, 'admin-secondary');
-    this.secondaryAuth = getAuth(secondaryApp);
+  constructor(private readonly firebase: FirebaseService) {
+    const firestore = this.firebase.getFirestore();
+    this.collectionRef = collection(firestore, 'customers');
+
+    onSnapshot(this.collectionRef, (snapshot) => {
+      const customers = snapshot.docs.map((docSnap) => this.normalize({ id: docSnap.id, ...docSnap.data() }));
+      this.customers$.next(customers);
+    });
   }
 
   getCustomers(): Observable<CustomerProfile[]> {
-    const ref = collection(this.firestore, 'customers');
-    return collectionData(ref, { idField: 'id' }).pipe(
-      map((customers) => customers.map((customer) => this.normalize(customer)))
-    );
+    return this.customers$.asObservable();
   }
 
   getCustomerById(id: string): Observable<CustomerProfile | undefined> {
-    const ref = doc(this.firestore, 'customers', id);
-    return docData(ref, { idField: 'id' }).pipe(map((customer) => (customer ? this.normalize(customer) : undefined)));
+    return this.customers$.pipe(map((customers) => customers.find((customer) => customer.id === id)));
   }
 
   async upsert(profile: CustomerProfile): Promise<void> {
-    const ref = doc(this.firestore, 'customers', profile.id);
+    const docRef = doc(this.collectionRef, profile.id);
     const payload = {
       ...profile,
-      points: profile.points ?? 0,
-      createdAt: profile.createdAt ?? new Date(),
-      updatedAt: new Date()
+      createdAt: profile.createdAt ?? serverTimestamp(),
+      updatedAt: serverTimestamp()
     };
-    await setDoc(ref, payload, { merge: true });
+    await setDoc(docRef, payload, { merge: true });
   }
 
   async delete(id: string): Promise<void> {
-    const ref = doc(this.firestore, 'customers', id);
-    await deleteDoc(ref);
+    await deleteDoc(doc(this.collectionRef, id));
   }
 
-  async createWithPassword(profile: Omit<CustomerProfile, 'id' | 'createdAt' | 'updatedAt'>, password: string): Promise<CustomerProfile> {
-    const credential = await createUserWithEmailAndPassword(this.secondaryAuth, profile.email, password);
+  async createWithPassword(
+    profile: Omit<CustomerProfile, 'id' | 'createdAt' | 'updatedAt'>,
+    _password: string
+  ): Promise<CustomerProfile> {
+    const docRef = doc(this.collectionRef);
     const payload: CustomerProfile = {
       ...profile,
-      id: credential.user.uid,
+      id: docRef.id,
       createdAt: new Date(),
       updatedAt: new Date(),
       points: profile.points ?? 0
-    };
-    await this.upsert(payload);
+    } as CustomerProfile;
+
+    await setDoc(docRef, { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
     return payload;
   }
 
   async updatePoints(ids: string[], points: number): Promise<void> {
-    const updates = ids.map((id) => {
-      const ref = doc(this.firestore, 'customers', id);
-      return updateDoc(ref, { points, updatedAt: new Date() });
-    });
+    const updates = ids.map((id) => updateDoc(doc(this.collectionRef, id), { points, updatedAt: serverTimestamp() }));
     await Promise.all(updates);
   }
 
@@ -72,7 +80,7 @@ export class CustomerService {
 
   private normalize(customer: Partial<CustomerProfile>): CustomerProfile {
     const toDate = (value?: unknown): Date => {
-      if ((value as Timestamp)?.toDate) return (value as Timestamp).toDate();
+      if ((value as { toDate?: () => Date })?.toDate) return (value as { toDate?: () => Date }).toDate!();
       return value ? new Date(value as string) : new Date();
     };
 

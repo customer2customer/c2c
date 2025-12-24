@@ -2,77 +2,99 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   ActionCodeSettings,
-  Auth,
-  authState,
-  createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  isSignInWithEmailLink,
+  User as FirebaseUser,
+  UserCredential,
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
   sendPasswordResetEmail,
   sendSignInLinkToEmail,
-  signInWithEmailLink,
+  setPersistence,
   signInWithEmailAndPassword,
+  signInWithEmailLink,
   signInWithPopup,
   signOut,
-  updateProfile,
-  User as FirebaseUser
-} from '@angular/fire/auth';
-import { Observable, map, shareReplay } from 'rxjs';
+  updateProfile
+} from 'firebase/auth';
+import {
+  DocumentReference,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc
+} from 'firebase/firestore';
+import { BehaviorSubject, Observable, map, shareReplay } from 'rxjs';
+import { FirebaseService } from '../../firebase/firebase.service';
 import { User } from '../../../shared/models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly currentUser$: Observable<User | null>;
+  private readonly currentUserSource = new BehaviorSubject<User | null>(null);
   private readonly adminEmails = ['tselvanmsc@gmail.com', 'admin@c2c.test'];
 
-  constructor(private readonly router: Router, private readonly auth: Auth) {
-    this.currentUser$ = authState(this.auth).pipe(
-      map((firebaseUser) => this.mapFirebaseUser(firebaseUser)),
-      shareReplay(1)
-    );
+  constructor(private readonly router: Router, private readonly firebase: FirebaseService) {
+    const auth = this.firebase.getAuth();
+    setPersistence(auth, browserLocalPersistence);
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        this.currentUserSource.next(null);
+        return;
+      }
+      const profile = await this.loadUserProfile(firebaseUser);
+      this.currentUserSource.next(profile);
+    });
+
+    this.currentUser$ = this.currentUserSource.asObservable().pipe(shareReplay(1));
   }
 
   sendSignInLink(email: string): Promise<void> {
+    const auth = this.firebase.getAuth();
     const actionCodeSettings: ActionCodeSettings = {
-      url: `${window.location.origin}/auth/verify`,
+      url: `${window.location.origin}/login`,
       handleCodeInApp: true
     };
 
-    return sendSignInLinkToEmail(this.auth, email, actionCodeSettings).then(() => {
-      localStorage.setItem('authEmail', email);
-    });
+    return sendSignInLinkToEmail(auth, email, actionCodeSettings);
   }
 
-  completeSignIn(email: string, link: string): Promise<User> {
-    if (!isSignInWithEmailLink(this.auth, link)) {
-      return Promise.reject(new Error('Invalid or expired sign-in link.'));
-    }
-
-    return signInWithEmailLink(this.auth, email, link).then((credential) => {
-      localStorage.removeItem('authEmail');
-      return this.mapFirebaseUser(credential.user)!;
-    });
+  async completeSignIn(email: string, link: string): Promise<User> {
+    const auth = this.firebase.getAuth();
+    const credential = await signInWithEmailLink(auth, email, link);
+    const profile = await this.syncUserProfile(credential);
+    this.currentUserSource.next(profile);
+    return profile;
   }
 
-  signInWithGoogle(): Promise<User> {
+  async signInWithGoogle(): Promise<User> {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(this.auth, provider).then((credential) => this.mapFirebaseUser(credential.user)!);
+    const credential = await signInWithPopup(this.firebase.getAuth(), provider);
+    const profile = await this.syncUserProfile(credential);
+    this.currentUserSource.next(profile);
+    return profile;
   }
 
   async signUpWithPassword(email: string, password: string, displayName?: string): Promise<User> {
-    const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+    const credential = await createUserWithEmailAndPassword(this.firebase.getAuth(), email, password);
     if (displayName) {
       await updateProfile(credential.user, { displayName });
     }
-    return this.mapFirebaseUser(credential.user)!;
+    const profile = await this.syncUserProfile(credential);
+    this.currentUserSource.next(profile);
+    return profile;
   }
 
   async signInWithPassword(email: string, password: string): Promise<User> {
-    const credential = await signInWithEmailAndPassword(this.auth, email, password);
-    return this.mapFirebaseUser(credential.user)!;
+    const credential = await signInWithEmailAndPassword(this.firebase.getAuth(), email, password);
+    const profile = await this.syncUserProfile(credential);
+    this.currentUserSource.next(profile);
+    return profile;
   }
 
   resetPassword(email: string): Promise<void> {
-    return sendPasswordResetEmail(this.auth, email);
+    return sendPasswordResetEmail(this.firebase.getAuth(), email);
   }
 
   getCurrentUser(): Observable<User | null> {
@@ -87,29 +109,57 @@ export class AuthService {
     return this.currentUser$.pipe(map((user) => Boolean(user?.isAdmin)));
   }
 
-  logout(): Promise<void> {
-    return signOut(this.auth).then(() => this.router.navigate(['/products']).then(() => undefined));
+  async logout(): Promise<void> {
+    await signOut(this.firebase.getAuth());
+    this.currentUserSource.next(null);
+    await this.router.navigate(['/products']);
   }
 
-  private mapFirebaseUser(firebaseUser: FirebaseUser | null): User | null {
-    if (!firebaseUser) {
-      return null;
+  private async syncUserProfile(credential: UserCredential): Promise<User> {
+    const firebaseUser = credential.user;
+    const firestoreUser = await this.loadUserProfile(firebaseUser);
+    if (firestoreUser) {
+      return firestoreUser;
     }
 
-    const providerId = firebaseUser.providerData[0]?.providerId ?? 'password';
-    const authProvider: User['authProvider'] =
-      providerId === 'google.com' ? 'google' : providerId === 'password' ? 'password' : 'emailLink';
-
-    return {
+    const docRef = this.userDocRef(firebaseUser.uid);
+    const profile: User = {
       id: firebaseUser.uid,
       email: firebaseUser.email ?? '',
-      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'New User',
-      authProvider,
+      name: firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'user',
+      authProvider: credential.providerId?.includes('google.com') ? 'google' : 'password',
       userType: 'both',
       isAdmin: this.adminEmails.includes(firebaseUser.email ?? ''),
       trustScore: 0,
       totalOrders: 0,
       isActive: true
     };
+
+    await setDoc(docRef, { ...profile, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    return profile;
+  }
+
+  private async loadUserProfile(firebaseUser: FirebaseUser): Promise<User | null> {
+    const docRef = this.userDocRef(firebaseUser.uid);
+    const snapshot = await getDoc(docRef);
+
+    if (!snapshot.exists()) return null;
+
+    const data = snapshot.data();
+    return {
+      id: firebaseUser.uid,
+      email: data['email'] ?? firebaseUser.email ?? '',
+      name: data['name'] ?? firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'user',
+      authProvider: data['authProvider'] ?? 'password',
+      userType: data['userType'] ?? 'both',
+      isAdmin: data['isAdmin'] ?? this.adminEmails.includes(firebaseUser.email ?? ''),
+      trustScore: data['trustScore'] ?? 0,
+      totalOrders: data['totalOrders'] ?? 0,
+      isActive: data['isActive'] ?? true
+    };
+  }
+
+  private userDocRef(userId: string): DocumentReference {
+    return doc(this.firebase.getFirestore(), 'users', userId);
   }
 }

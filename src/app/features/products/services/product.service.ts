@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { collection, deleteDoc, doc, Firestore, setDoc, updateDoc } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { CustomerService } from '../../../core/customer/customer.service';
 import { DataLoaderService } from '../../../core/data/data-loader.service';
@@ -30,7 +29,6 @@ export class ProductService {
 
   constructor(
     private readonly dataLoader: DataLoaderService,
-    private readonly firestore: Firestore,
     private readonly customerService: CustomerService
   ) {
     combineLatest([this.dataLoader.getProducts(), this.customerService.getCustomers()]).subscribe(
@@ -68,28 +66,23 @@ export class ProductService {
   }
 
   async createProduct(product: Product): Promise<Product> {
-    const productsRef = collection(this.firestore, 'products');
-    const docRef = doc(productsRef);
     const payload = {
       ...product,
-      id: docRef.id,
+      id: product.id ?? `product-${Date.now()}`,
       createdAt: product.createdAt ?? new Date(),
       verificationStatus: product.verificationStatus ?? 'pending',
       updatedAt: new Date()
     };
 
-    await setDoc(docRef, payload);
-    return payload;
+    return this.dataLoader.addProduct(payload);
   }
 
   async updateProduct(updatedProduct: Product): Promise<void> {
-    const ref = doc(this.firestore, 'products', updatedProduct.id);
-    await updateDoc(ref, { ...updatedProduct, updatedAt: new Date() });
+    this.dataLoader.updateProduct({ ...updatedProduct, updatedAt: new Date() });
   }
 
   async deleteProduct(productId: string): Promise<void> {
-    const ref = doc(this.firestore, 'products', productId);
-    await deleteDoc(ref);
+    this.dataLoader.deleteProduct(productId);
   }
 
   getProductsForSeller(user: User): Observable<Product[]> {
