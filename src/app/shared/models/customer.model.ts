@@ -7,6 +7,9 @@ export interface CustomerProfile {
   address: string;
   city: string;
   locationNote?: string;
+  points: number;
+  createdById?: string;
+  createdByEmail?: string;
   createdAt: Date;
   updatedAt: Date;
 }

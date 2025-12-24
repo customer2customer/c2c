@@ -1,0 +1,26 @@
+.admin {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+header .pills {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pills button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #f6f6f6;
+  cursor: pointer;
+}
+
+.pills button.active {
+  background: #0c5bd8;
+  color: #fff;
+  border-color: #0c5bd8;
+}

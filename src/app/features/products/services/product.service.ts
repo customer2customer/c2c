@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { collection, deleteDoc, doc, Firestore, setDoc, updateDoc } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { CustomerService } from '../../../core/customer/customer.service';
 import { DataLoaderService } from '../../../core/data/data-loader.service';
-import { Product, ProductCategory } from '../../../shared/models/product.model';
+import { Product, ProductCategory, ProductRating } from '../../../shared/models/product.model';
 import { User } from '../../../shared/models/user.model';
 
 export type SortOption = 'priceLowHigh' | 'priceHighLow' | 'newest' | 'popular' | 'rating';
@@ -27,10 +28,25 @@ export class ProductService {
     inStockOnly: false
   });
 
-  constructor(private readonly dataLoader: DataLoaderService, private readonly firestore: Firestore) {
-    this.dataLoader.getProducts().subscribe((products) => {
-      this.productsSource$.next(products);
-    });
+  constructor(
+    private readonly dataLoader: DataLoaderService,
+    private readonly firestore: Firestore,
+    private readonly customerService: CustomerService
+  ) {
+    combineLatest([this.dataLoader.getProducts(), this.customerService.getCustomers()]).subscribe(
+      ([products, customers]) => {
+        const eligibleCustomerIds = new Set(
+          customers.filter((c) => (c.points ?? 0) > 1).map((customer) => customer.id)
+        );
+
+        const filtered = products.filter((product) => {
+          if (!product.createdById) return true;
+          return eligibleCustomerIds.has(product.createdById);
+        });
+
+        this.productsSource$.next(filtered);
+      }
+    );
   }
 
   getProducts(): Observable<Product[]> {
@@ -85,6 +101,39 @@ export class ProductService {
         );
       })
     );
+  }
+
+  async addOrUpdateRating(
+    product: Product,
+    user: User,
+    rating: number,
+    comment?: string
+  ): Promise<void> {
+    const ratings = product.ratings ?? [];
+    const existingIndex = ratings.findIndex((entry) => entry.userId === user.id);
+    const now = new Date();
+    const entry: ProductRating = {
+      userId: user.id,
+      userName: user.name,
+      comment: comment?.slice(0, 100),
+      rating,
+      createdAt: ratings[existingIndex]?.createdAt ?? now,
+      updatedAt: now
+    };
+
+    if (existingIndex >= 0) {
+      ratings[existingIndex] = { ...ratings[existingIndex], ...entry };
+    } else {
+      ratings.push(entry);
+    }
+
+    await this.updateProduct({ ...product, ratings });
+  }
+
+  averageRating(product?: Product): number {
+    if (!product?.ratings?.length) return product?.sellerRating ?? 0;
+    const sum = product.ratings.reduce((acc, entry) => acc + entry.rating, 0);
+    return Number((sum / product.ratings.length).toFixed(1));
   }
 
   private applyFilters(products: Product[], filters: ProductFilters): Product[] {

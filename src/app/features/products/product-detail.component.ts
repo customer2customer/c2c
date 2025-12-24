@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, switchMap } from 'rxjs';
+import { firstValueFrom, Observable, switchMap } from 'rxjs';
 import { AuthService } from '../../core/auth/services/auth.service';
-import { Product } from '../../shared/models/product.model';
+import { Product, ProductRating } from '../../shared/models/product.model';
 import { ProductService } from './services/product.service';
 
 @Component({
@@ -14,6 +14,8 @@ import { ProductService } from './services/product.service';
 })
 export class ProductDetailComponent {
   product$!: Observable<Product | undefined>;
+  ratingValue = 5;
+  ratingComment = '';
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -46,5 +48,26 @@ export class ProductDetailComponent {
       return product.isPreorderAvailable ? 'Available for preorder now' : 'Preorder closed';
     }
     return 'Out of stock';
+  }
+
+  average(product?: Product): number {
+    return this.productService.averageRating(product);
+  }
+
+  ratingAllowed(product: Product, rating: ProductRating | undefined, userId: string | undefined): boolean {
+    if (!userId) return false;
+    return rating?.userId === userId || Boolean(rating === undefined && userId);
+  }
+
+  async submitRating(product?: Product): Promise<void> {
+    if (!product) return;
+    const user = await firstValueFrom(this.authService.getCurrentUser());
+    if (!user) {
+      await this.router.navigate(['/auth/login'], { queryParams: { returnUrl: `/products/${product.id}` } });
+      return;
+    }
+
+    await this.productService.addOrUpdateRating(product, user, this.ratingValue, this.ratingComment);
+    this.ratingComment = '';
   }
 }

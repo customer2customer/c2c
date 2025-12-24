@@ -1,0 +1,22 @@
+.panel {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+button.danger {
+  background: #ff7676;
+  color: #fff;
+}

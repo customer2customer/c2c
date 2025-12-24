@@ -8,6 +8,12 @@
   </header>
 
   <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <div class="info-row">
+      <p class="eyebrow">Reward points</p>
+      <p class="balance">{{ points }} point(s)</p>
+      <small>Earned or adjusted by admin for loyalty programs.</small>
+    </div>
+
     <div class="grid-two">
       <label>
         First name

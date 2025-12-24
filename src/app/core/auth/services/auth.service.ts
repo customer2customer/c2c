@@ -22,6 +22,7 @@ import { User } from '../../../shared/models/user.model';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly currentUser$: Observable<User | null>;
+  private readonly adminEmails = ['tselvanmsc@gmail.com', 'admin@c2c.test'];
 
   constructor(private readonly router: Router, private readonly auth: Auth) {
     this.currentUser$ = authState(this.auth).pipe(
@@ -82,6 +83,10 @@ export class AuthService {
     return this.currentUser$.pipe(map((user) => Boolean(user)));
   }
 
+  isAdmin(): Observable<boolean> {
+    return this.currentUser$.pipe(map((user) => Boolean(user?.isAdmin)));
+  }
+
   logout(): Promise<void> {
     return signOut(this.auth).then(() => this.router.navigate(['/products']).then(() => undefined));
   }
@@ -101,6 +106,7 @@ export class AuthService {
       name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'New User',
       authProvider,
       userType: 'both',
+      isAdmin: this.adminEmails.includes(firebaseUser.email ?? ''),
       trustScore: 0,
       totalOrders: 0,
       isActive: true

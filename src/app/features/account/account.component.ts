@@ -21,6 +21,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   private existingCreatedAt?: Date;
   isPasswordUser = false;
   currentEmail = '';
+  points = 0;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -59,12 +60,14 @@ export class AccountComponent implements OnInit, OnDestroy {
               address: user.location?.address ?? '',
               city: user.location?.city ?? '',
               locationNote: '',
+              points: 0,
               createdAt: new Date(),
               updatedAt: new Date()
             };
             const data = profile ?? fallback;
             this.currentCustomerId = data.id;
             this.existingCreatedAt = data.createdAt;
+            this.points = data.points ?? 0;
             this.form.patchValue(data);
           });
       });
@@ -92,6 +95,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       address: value.address,
       city: value.city,
       locationNote: value.locationNote,
+      points: this.points,
       createdAt: this.existingCreatedAt ?? new Date(),
       updatedAt: new Date()
     };

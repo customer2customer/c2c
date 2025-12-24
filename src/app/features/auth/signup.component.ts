@@ -75,6 +75,7 @@ export class SignupComponent {
         address: value.address ?? '',
         city: value.city ?? '',
         locationNote: value.locationNote ?? '',
+        points: 0,
         createdAt: authUser?.createdAt ?? new Date(),
         updatedAt: new Date()
       };

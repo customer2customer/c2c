@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Observable, of, switchMap, map, BehaviorSubject } from 'rxjs';
 import { AuthService } from '../../core/auth/services/auth.service';
-import { DataLoaderService } from '../../core/data/data-loader.service';
 import { Product } from '../../shared/models/product.model';
 import { ProductService } from '../products/services/product.service';
 
@@ -24,12 +23,10 @@ export class SellerDashboardComponent {
   stats$!: Observable<SellerStats>;
   isAdmin$!: Observable<boolean>;
   verificationStatus$ = new BehaviorSubject<{ [id: string]: 'idle' | 'updating' | 'error' }>({});
-  adminActionStatus$ = new BehaviorSubject<'idle' | 'working' | 'done' | 'error'>('idle');
 
   constructor(
     private readonly productService: ProductService,
-    private readonly authService: AuthService,
-    private readonly dataLoader: DataLoaderService
+    private readonly authService: AuthService
   ) {
     this.currentUser$ = this.authService.getCurrentUser();
     this.isAdmin$ = this.currentUser$.pipe(map((user) => user?.email === 'tselvanmsc@gmail.com'));
@@ -80,21 +77,5 @@ export class SellerDashboardComponent {
       .then(() => {
         this.verificationStatus$.next({ ...this.verificationStatus$.value, [product.id]: 'idle' });
       });
-  }
-
-  loadSampleProducts(): void {
-    this.adminActionStatus$.next('working');
-    this.dataLoader.loadSampleProducts().subscribe({
-      next: () => this.adminActionStatus$.next('done'),
-      error: () => this.adminActionStatus$.next('error')
-    });
-  }
-
-  clearProducts(): void {
-    this.adminActionStatus$.next('working');
-    this.dataLoader.clearProducts().subscribe({
-      next: () => this.adminActionStatus$.next('done'),
-      error: () => this.adminActionStatus$.next('error')
-    });
   }
 }

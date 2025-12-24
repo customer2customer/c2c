@@ -13,7 +13,7 @@ import {
   where
 } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, catchError, from, map, of, switchMap } from 'rxjs';
-import { Product, VerificationStatus } from '../../shared/models/product.model';
+import { Product, ProductRating, VerificationStatus } from '../../shared/models/product.model';
 import { User } from '../../shared/models/user.model';
 import { MOCK_PRODUCTS, MOCK_USERS } from './mock-data';
 
@@ -109,6 +109,16 @@ export class DataLoaderService {
       return [{ address: 'Community Market', city: 'Pune' }];
     };
 
+    const normalizeRatings = (): ProductRating[] => {
+      const ratings = (product as { ratings?: ProductRating[] }).ratings;
+      if (!ratings) return [];
+      return ratings.map((rating) => ({
+        ...rating,
+        createdAt: toDate(rating.createdAt) ?? new Date(),
+        updatedAt: toDate(rating.updatedAt) ?? new Date()
+      }));
+    };
+
     return {
       id: product.id ?? this.generateId(),
       productName: product.productName ?? 'Community product',
@@ -140,6 +150,7 @@ export class DataLoaderService {
       createdById: product.createdById ?? product.sellerId ?? 'community-seller',
       createdByEmail: product.createdByEmail ?? 'unknown@c2c.local',
       createdByName: product.createdByName ?? product.sellerName ?? 'Community Seller',
+      ratings: normalizeRatings(),
       createdAt: toDate(product.createdAt),
       updatedAt: toDate(product.updatedAt)
     };

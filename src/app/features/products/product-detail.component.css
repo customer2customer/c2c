@@ -98,6 +98,26 @@
   border: 1px solid #e2e8f0;
 }
 
+.ratings {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+}
+
+.ratings ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+
+.ratings li + li {
+  border-top: 1px solid #eee;
+  padding-top: 6px;
+  margin-top: 6px;
+}
+
 .delivery ul {
   margin: 0;
   padding-left: 18px;

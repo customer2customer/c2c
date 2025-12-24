@@ -1,0 +1,40 @@
+<section class="panel">
+  <header>
+    <h2>Manage products</h2>
+    <p>Approve, verify and clean up marketplace listings. Created by details remain visible.</p>
+    <div class="actions">
+      <button type="button" (click)="loadSample()">Load sample data</button>
+      <button type="button" (click)="clear()">Clear data</button>
+      <span class="success" *ngIf="actionStatus$ | async as status" [hidden]="status !== 'done'">Done</span>
+      <span class="error" *ngIf="actionStatus$ | async as status2" [hidden]="status2 !== 'error'">Error</span>
+    </div>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Created by</th>
+        <th>Verification</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of products$ | async">
+        <td>{{ product.productName }}</td>
+        <td>{{ product.category }}</td>
+        <td>{{ product.createdByName || product.sellerName }}<br /><small>{{ product.createdByEmail }}</small></td>
+        <td>
+          <select [value]="product.verificationStatus" #statusSel (change)="updateVerification(product, $any(statusSel.value) === 'verified' ? 'verified' : 'pending')">
+            <option value="pending">Pending</option>
+            <option value="verified">Verified</option>
+          </select>
+        </td>
+        <td>
+          <button type="button" class="danger" (click)="deleteProduct(product)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
