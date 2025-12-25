@@ -1,5 +1,5 @@
 <section class="requests">
-  <div class="loading-overlay" *ngIf="status === 'saving' || status === 'loading'">
+  <div class="loading-overlay" *ngIf="loading">
     <div class="spinner" aria-label="Saving request"></div>
   </div>
   <header class="header">
@@ -37,7 +37,7 @@
         >
       </label>
       <button type="submit">Send request</button>
-      <p class="error" *ngIf="status === 'error'">Could not send request.</p>
+      <p class="error" *ngIf="hasError">Could not send request.</p>
     </form>
 
     <article class="card">

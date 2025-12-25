@@ -55,12 +55,23 @@ export class ProductRequestService {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    await setDoc(docRef, { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    const { verifiedBy, ...rest } = payload;
+    await setDoc(docRef, {
+      ...rest,
+      ...(verifiedBy ? { verifiedBy } : {}),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
     return payload;
   }
 
   async update(request: ProductRequest): Promise<void> {
-    await setDoc(doc(this.collectionRef, request.id), { ...request, updatedAt: serverTimestamp() }, { merge: true });
+    const { verifiedBy, ...rest } = request;
+    await setDoc(
+      doc(this.collectionRef, request.id),
+      { ...rest, ...(verifiedBy ? { verifiedBy } : {}), updatedAt: serverTimestamp() },
+      { merge: true }
+    );
   }
 
   async delete(id: string): Promise<void> {
