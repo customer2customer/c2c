@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { DataLoaderService } from '../../core/data/data-loader.service';
 import { Product } from '../../shared/models/product.model';
 import { ProductService } from '../products/services/product.service';
@@ -13,8 +12,11 @@ import { ProductService } from '../products/services/product.service';
 })
 export class ProductManagementComponent {
   products$;
-  actionStatus$ = new BehaviorSubject<'idle' | 'working' | 'done' | 'error'>('idle');
-  verificationStatus$ = new BehaviorSubject<{ [id: string]: 'idle' | 'updating' | 'error' }>({});
+  loading = false;
+  error = false;
+  success = false;
+  verificationLoading: Record<string, boolean> = {};
+  verificationError: Record<string, boolean> = {};
 
   constructor(
     private readonly productService: ProductService,
@@ -24,34 +26,69 @@ export class ProductManagementComponent {
   }
 
   updateVerification(product: Product, status: Product['verificationStatus']): void {
-    this.verificationStatus$.next({ ...this.verificationStatus$.value, [product.id]: 'updating' });
+    this.verificationLoading = { ...this.verificationLoading, [product.id]: true };
+    this.verificationError = { ...this.verificationError, [product.id]: false };
     this.productService
       .updateProduct({ ...product, verificationStatus: status })
-      .then(() => this.verificationStatus$.next({ ...this.verificationStatus$.value, [product.id]: 'idle' }))
-      .catch(() => this.verificationStatus$.next({ ...this.verificationStatus$.value, [product.id]: 'error' }));
+      .then(() => {
+        this.verificationLoading = { ...this.verificationLoading, [product.id]: false };
+      })
+      .catch(() => {
+        this.verificationLoading = { ...this.verificationLoading, [product.id]: false };
+        this.verificationError = { ...this.verificationError, [product.id]: true };
+      });
   }
 
   deleteProduct(product: Product): void {
-    this.actionStatus$.next('working');
+    this.loading = true;
+    this.error = false;
+    this.success = false;
     this.productService
       .deleteProduct(product.id)
-      .then(() => this.actionStatus$.next('done'))
-      .catch(() => this.actionStatus$.next('error'));
+      .then(() => {
+        this.success = true;
+      })
+      .catch(() => {
+        this.error = true;
+      })
+      .finally(() => {
+        this.loading = false;
+      });
   }
 
   loadSample(): void {
-    this.actionStatus$.next('working');
+    this.loading = true;
+    this.error = false;
+    this.success = false;
     this.dataLoader.loadSampleProducts().subscribe({
-      next: () => this.actionStatus$.next('done'),
-      error: () => this.actionStatus$.next('error')
+      next: () => {
+        this.success = true;
+      },
+      error: () => {
+        this.error = true;
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
     });
   }
 
   clear(): void {
-    this.actionStatus$.next('working');
+    this.loading = true;
+    this.error = false;
+    this.success = false;
     this.dataLoader.clearProducts().subscribe({
-      next: () => this.actionStatus$.next('done'),
-      error: () => this.actionStatus$.next('error')
+      next: () => {
+        this.success = true;
+      },
+      error: () => {
+        this.error = true;
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
     });
   }
 }

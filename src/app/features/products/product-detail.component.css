@@ -118,6 +118,37 @@
   margin-top: 6px;
 }
 
+.star-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.star-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+}
+
+.star {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.star.filled {
+  color: #f59e0b;
+}
+
+.star__value {
+  font-weight: 700;
+  color: #0f172a;
+}
+
 .delivery ul {
   margin: 0;
   padding-left: 18px;

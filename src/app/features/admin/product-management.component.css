@@ -38,6 +38,12 @@ select {
   box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
 }
 
+.muted {
+  color: #475569;
+  display: block;
+  margin-top: 4px;
+}
+
 button.danger {
   background: #ff7676;
   color: #fff;

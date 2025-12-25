@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { ProductRequestService } from '../products/services/product-request.service';
 import { ProductRequest } from '../../shared/models/product-request.model';
 
@@ -12,39 +11,66 @@ import { ProductRequest } from '../../shared/models/product-request.model';
 })
 export class RequestManagementComponent {
   requests$;
-  status$ = new BehaviorSubject<'idle' | 'working' | 'error'>('idle');
+  loading = false;
+  error = false;
 
   constructor(private readonly requestService: ProductRequestService) {
     this.requests$ = this.requestService.getAll();
   }
 
   loadSamples(): void {
-    this.status$.next('working');
-    this.requestService
-      .loadSamples()
-      .subscribe({ next: () => this.status$.next('idle'), error: () => this.status$.next('error') });
+    this.loading = true;
+    this.error = false;
+    this.requestService.loadSamples().subscribe({
+      next: () => {
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.error = true;
+      }
+    });
   }
 
   clear(): void {
-    this.status$.next('working');
-    this.requestService
-      .clear()
-      .subscribe({ next: () => this.status$.next('idle'), error: () => this.status$.next('error') });
+    this.loading = true;
+    this.error = false;
+    this.requestService.clear().subscribe({
+      next: () => {
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.error = true;
+      }
+    });
   }
 
   verify(request: ProductRequest, approved: boolean): void {
-    this.status$.next('working');
+    this.loading = true;
+    this.error = false;
     this.requestService
       .verify(request.id, approved, 'admin')
-      .then(() => this.status$.next('idle'))
-      .catch(() => this.status$.next('error'));
+      .then(() => {
+        this.loading = false;
+      })
+      .catch(() => {
+        this.loading = false;
+        this.error = true;
+      });
   }
 
   delete(request: ProductRequest): void {
-    this.status$.next('working');
+    this.loading = true;
+    this.error = false;
     this.requestService
       .delete(request.id)
-      .then(() => this.status$.next('idle'))
-      .catch(() => this.status$.next('error'));
+      .then(() => {
+        this.loading = false;
+      })
+      .catch(() => {
+        this.loading = false;
+        this.error = true;
+      });
   }
 }

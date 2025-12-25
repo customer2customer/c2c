@@ -1,5 +1,5 @@
 <section class="panel">
-  <div class="loading-overlay" *ngIf="actionStatus$ | async as status" [hidden]="status !== 'working'">
+  <div class="loading-overlay" *ngIf="loading">
     <div class="spinner" aria-label="Updating products"></div>
   </div>
   <header>
@@ -8,8 +8,8 @@
     <div class="actions">
       <button type="button" (click)="loadSample()">Load sample data</button>
       <button type="button" (click)="clear()">Clear data</button>
-      <span class="success" *ngIf="actionStatus$ | async as status" [hidden]="status !== 'done'">Done</span>
-      <span class="error" *ngIf="actionStatus$ | async as status2" [hidden]="status2 !== 'error'">Error</span>
+      <span class="success" *ngIf="success && !loading">Done</span>
+      <span class="error" *ngIf="error && !loading">Error</span>
     </div>
   </header>
 
@@ -18,6 +18,9 @@
       <tr>
         <th>Name</th>
         <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Availability</th>
         <th>Created by</th>
         <th>Verification</th>
         <th></th>
@@ -27,12 +30,17 @@
       <tr *ngFor="let product of products$ | async">
         <td>{{ product.productName }}</td>
         <td>{{ product.category }}</td>
+        <td>₹{{ product.c2cPrice | number: '1.0-0' }}</td>
+        <td>{{ product.stock }}</td>
+        <td>{{ product.availabilityStatus }}</td>
         <td>{{ product.createdByName || product.sellerName }}<br /><small>{{ product.createdByEmail }}</small></td>
         <td>
           <select [value]="product.verificationStatus" #statusSel (change)="updateVerification(product, $any(statusSel.value) === 'verified' ? 'verified' : 'pending')">
             <option value="pending">Pending</option>
             <option value="verified">Verified</option>
           </select>
+          <small class="muted" *ngIf="verificationLoading[product.id]">Saving…</small>
+          <small class="error" *ngIf="verificationError[product.id]">Update failed</small>
         </td>
         <td>
           <button type="button" class="danger" (click)="deleteProduct(product)">Delete</button>
