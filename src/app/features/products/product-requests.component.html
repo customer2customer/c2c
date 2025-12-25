@@ -16,6 +16,7 @@
   <section class="grid">
     <form [formGroup]="form" (ngSubmit)="submit()" class="card" novalidate>
       <h3>Submit a request</h3>
+      <p class="muted" *ngIf="editingRequest">Editing "{{ editingRequest.title }}"</p>
       <label>
         Title
         <input formControlName="title" placeholder="E.g. Need organic veggies" required />
@@ -36,16 +37,22 @@
           >Description is required.</small
         >
       </label>
-      <button type="submit">Send request</button>
+      <div class="inline-actions">
+        <button type="submit">{{ editingRequest ? 'Update request' : 'Send request' }}</button>
+        <button type="button" class="ghost" *ngIf="editingRequest" (click)="cancelEdit()">Cancel edit</button>
+      </div>
       <p class="error" *ngIf="hasError">Could not send request.</p>
     </form>
 
     <article class="card">
       <h3>Approved requests</h3>
-      <ul>
-        <li *ngFor="let item of approved$ | async">
-          <strong>{{ item.title }}</strong>
-          <p>{{ item.description }}</p>
+      <ul class="approved-list">
+        <li *ngFor="let item of approved$ | async" class="approved-list__item">
+          <div>
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.description }}</p>
+          </div>
+          <div class="chip">{{ item.category }}</div>
           <small>By {{ item.requesterName }}</small>
         </li>
       </ul>
@@ -54,13 +61,18 @@
 
   <section class="card" *ngIf="(myRequests$ | async)?.length">
     <h3>Your submissions</h3>
-    <div *ngFor="let req of myRequests$ | async" class="row">
-      <div>
-        <strong>{{ req.title }}</strong>
-        <p>{{ req.description }}</p>
-        <small>Status: {{ req.approved ? 'Approved' : 'Pending admin review' }}</small>
-      </div>
-      <button type="button" (click)="update(req)">Mark for re-review</button>
-    </div>
+    <ul class="owned-list">
+      <li *ngFor="let req of myRequests$ | async" class="owned-list__item">
+        <div class="owned-list__content">
+          <strong>{{ req.title }}</strong>
+          <p>{{ req.description }}</p>
+          <small>Status: {{ req.approved ? 'Approved' : 'Pending admin review' }}</small>
+        </div>
+        <div class="owned-list__actions">
+          <button type="button" class="secondary" (click)="startEdit(req)">Edit</button>
+          <button type="button" (click)="markForReview(req)">Mark for re-review</button>
+        </div>
+      </li>
+    </ul>
   </section>
 </section>

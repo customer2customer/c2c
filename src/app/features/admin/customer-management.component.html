@@ -1,5 +1,5 @@
 <section class="panel">
-  <div class="loading-overlay" *ngIf="status$ | async as status" [hidden]="status !== 'working'">
+  <div class="loading-overlay" *ngIf="loading">
     <div class="spinner" aria-label="Loading customers"></div>
   </div>
   <header>
@@ -63,8 +63,8 @@
     </label>
     <div class="actions">
       <button type="submit">Create customer</button>
-      <span class="success" *ngIf="status$ | async as status" [hidden]="status !== 'saved'">Saved</span>
-      <span class="error" *ngIf="status$ | async as status2" [hidden]="status2 !== 'error'">Failed</span>
+      <span class="success" *ngIf="saved && !loading">Saved</span>
+      <span class="error" *ngIf="error && !loading">Failed</span>
     </div>
   </form>
 

@@ -13,8 +13,11 @@ import { CustomerProfile } from '../../shared/models/customer.model';
 })
 export class CustomerManagementComponent {
   customers$;
-  status$ = new BehaviorSubject<'idle' | 'working' | 'error' | 'saved'>('idle');
   selection$ = new BehaviorSubject<Set<string>>(new Set());
+
+  loading = false;
+  error = false;
+  saved = false;
 
   customerForm;
 
@@ -62,7 +65,9 @@ export class CustomerManagementComponent {
       this.customerForm.markAllAsTouched();
       return;
     }
-    this.status$.next('working');
+    this.loading = true;
+    this.error = false;
+    this.saved = false;
 
     const payload = this.customerForm.value;
     try {
@@ -81,21 +86,27 @@ export class CustomerManagementComponent {
 
       await this.customerService.createWithPassword(profile, payload.password ?? '');
       this.customerForm.reset({ points: 0 });
-      this.status$.next('saved');
+      this.saved = true;
     } catch (error) {
       console.error('Create failed', error);
-      this.status$.next('error');
+      this.error = true;
+    } finally {
+      this.loading = false;
     }
   }
 
   async deleteCustomer(customer: CustomerProfile): Promise<void> {
-    this.status$.next('working');
+    this.loading = true;
+    this.error = false;
+    this.saved = false;
     try {
       await this.customerService.delete(customer.id);
-      this.status$.next('saved');
+      this.saved = true;
     } catch (error) {
       console.error('Delete failed', error);
-      this.status$.next('error');
+      this.error = true;
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -113,13 +124,17 @@ export class CustomerManagementComponent {
 
     if (!ids.length) return;
 
-    this.status$.next('working');
+    this.loading = true;
+    this.error = false;
+    this.saved = false;
     try {
       await this.customerService.updatePoints(ids, Number(points ?? 0));
-      this.status$.next('saved');
+      this.saved = true;
     } catch (error) {
       console.error('Failed to update points', error);
-      this.status$.next('error');
+      this.error = true;
+    } finally {
+      this.loading = false;
     }
   }
 }

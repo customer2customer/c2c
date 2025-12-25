@@ -78,10 +78,10 @@ export class ProductService {
     this.dataLoader.deleteProduct(productId);
   }
 
-  getProductsForSeller(user: User): Observable<Product[]> {
+  getProductsForSeller(user: User, includeAllForAdmin = true): Observable<Product[]> {
     return this.getRawProducts().pipe(
       map((products) => {
-        if (user.email === this.adminEmail) return products;
+        if (includeAllForAdmin && user.email === this.adminEmail) return products;
         return products.filter(
           (product) => product.createdByEmail === user.email || product.createdById === user.id
         );

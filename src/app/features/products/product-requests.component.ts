@@ -17,6 +17,8 @@ export class ProductRequestsComponent {
   approved$;
   myRequests$;
 
+  editingRequest?: ProductRequest;
+
   form;
 
   categories = [
@@ -59,15 +61,26 @@ export class ProductRequestsComponent {
     this.loading = true;
     this.hasError = false;
     try {
-      await this.requestService.create({
-        title: this.form.value.title ?? '',
-        description: this.form.value.description ?? '',
-        category: this.form.value.category ?? 'general',
-        requesterId: user.id,
-        requesterName: user.name,
-        requesterEmail: user.email
-      });
+      if (this.editingRequest) {
+        await this.requestService.update({
+          ...this.editingRequest,
+          title: this.form.value.title ?? '',
+          description: this.form.value.description ?? '',
+          category: this.form.value.category ?? 'general',
+          approved: false
+        });
+      } else {
+        await this.requestService.create({
+          title: this.form.value.title ?? '',
+          description: this.form.value.description ?? '',
+          category: this.form.value.category ?? 'general',
+          requesterId: user.id,
+          requesterName: user.name,
+          requesterEmail: user.email
+        });
+      }
       this.form.reset({ category: 'general' });
+      this.editingRequest = undefined;
     } catch (error) {
       console.error(error);
       this.hasError = true;
@@ -112,7 +125,21 @@ export class ProductRequestsComponent {
       .subscribe();
   }
 
-  async update(request: ProductRequest): Promise<void> {
+  startEdit(request: ProductRequest): void {
+    this.editingRequest = request;
+    this.form.patchValue({
+      title: request.title,
+      description: request.description,
+      category: request.category
+    });
+  }
+
+  cancelEdit(): void {
+    this.editingRequest = undefined;
+    this.form.reset({ category: 'general' });
+  }
+
+  async markForReview(request: ProductRequest): Promise<void> {
     const user = await firstValueFrom(this.currentUser$);
     if (!user || user.id !== request.requesterId) return;
     this.loading = true;

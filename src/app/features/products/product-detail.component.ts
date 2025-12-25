@@ -14,6 +14,7 @@ import { ProductService } from './services/product.service';
 })
 export class ProductDetailComponent {
   product$!: Observable<Product | undefined>;
+  ratingOptions = [1, 2, 3, 4, 5];
   ratingValue = 5;
   ratingComment = '';
 
@@ -57,6 +58,10 @@ export class ProductDetailComponent {
   ratingAllowed(product: Product, rating: ProductRating | undefined, userId: string | undefined): boolean {
     if (!userId) return false;
     return rating?.userId === userId || Boolean(rating === undefined && userId);
+  }
+
+  setRating(value: number): void {
+    this.ratingValue = Math.min(Math.max(1, value), 5);
   }
 
   async submitRating(product?: Product): Promise<void> {

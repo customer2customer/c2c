@@ -1,5 +1,5 @@
 <section class="panel">
-  <div class="loading-overlay" *ngIf="status$ | async as status" [hidden]="status !== 'working'">
+  <div class="loading-overlay" *ngIf="loading">
     <div class="spinner" aria-label="Updating requests"></div>
   </div>
   <header>
@@ -8,8 +8,8 @@
     <div class="actions">
       <button type="button" (click)="loadSamples()">Load sample data</button>
       <button type="button" class="ghost" (click)="clear()">Clear data</button>
-      <span class="success" *ngIf="status$ | async as status" [hidden]="status !== 'idle'">Ready</span>
-      <span class="error" *ngIf="status$ | async as status2" [hidden]="status2 !== 'error'">Error</span>
+      <span class="success" *ngIf="!loading && !error">Ready</span>
+      <span class="error" *ngIf="error && !loading">Error</span>
     </div>
   </header>
 
