@@ -25,10 +25,17 @@ export class ProductRequestService {
     const firestore = this.firebase.getFirestore();
     this.collectionRef = collection(firestore, 'productRequests');
 
-    onSnapshot(this.collectionRef, (snapshot) => {
-      const requests = snapshot.docs.map((docSnap) => this.normalize({ id: docSnap.id, ...docSnap.data() }));
-      this.requests$.next(requests);
-    });
+    onSnapshot(
+      this.collectionRef,
+      (snapshot) => {
+        const requests = snapshot.docs.map((docSnap) => this.normalize({ id: docSnap.id, ...docSnap.data() }));
+        this.requests$.next(requests);
+      },
+      (error) => {
+        console.error('Product requests listener failed, clearing cache', error);
+        this.requests$.next([]);
+      }
+    );
   }
 
   getAll(): Observable<ProductRequest[]> {

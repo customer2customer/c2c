@@ -29,15 +29,29 @@ export class DataLoaderService {
     this.productCollection = collection(firestore, 'products');
     this.userCollection = collection(firestore, 'users');
 
-    onSnapshot(this.productCollection, (snapshot) => {
-      const products = snapshot.docs.map((docSnap) => this.normalizeProduct({ id: docSnap.id, ...docSnap.data() }));
-      this.products$.next(products);
-    });
+    onSnapshot(
+      this.productCollection,
+      (snapshot) => {
+        const products = snapshot.docs.map((docSnap) => this.normalizeProduct({ id: docSnap.id, ...docSnap.data() }));
+        this.products$.next(products);
+      },
+      (error) => {
+        console.error('Products listener failed, clearing cache', error);
+        this.products$.next([]);
+      }
+    );
 
-    onSnapshot(this.userCollection, (snapshot) => {
-      const users = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...(docSnap.data() as any) })) as User[];
-      this.users$.next(users);
-    });
+    onSnapshot(
+      this.userCollection,
+      (snapshot) => {
+        const users = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...(docSnap.data() as any) })) as User[];
+        this.users$.next(users);
+      },
+      (error) => {
+        console.error('Users listener failed, clearing local cache', error);
+        this.users$.next([]);
+      }
+    );
   }
 
   getProducts(): Observable<Product[]> {
