@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { CustomerService } from '../../../core/customer/customer.service';
 import { DataLoaderService } from '../../../core/data/data-loader.service';
 import { Product, ProductCategory, ProductRating } from '../../../shared/models/product.model';
+import { CustomerProfile } from '../../../shared/models/customer.model';
 import { User } from '../../../shared/models/user.model';
 
 export type SortOption = 'priceLowHigh' | 'priceHighLow' | 'newest' | 'popular' | 'rating';
@@ -33,15 +34,7 @@ export class ProductService {
   ) {
     combineLatest([this.dataLoader.getProducts(), this.customerService.getCustomers()]).subscribe(
       ([products, customers]) => {
-        const eligibleCustomerIds = new Set(
-          customers.filter((c) => (c.points ?? 0) > 1).map((customer) => customer.id)
-        );
-
-        const filtered = products.filter((product) => {
-          if (!product.createdById) return true;
-          return eligibleCustomerIds.has(product.createdById);
-        });
-
+        const filtered = this.filterByEligibleCustomers(products, customers);
         this.productsSource$.next(filtered);
       }
     );
@@ -198,5 +191,20 @@ export class ProductService {
       default:
         return sorted.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
     }
+  }
+
+  private filterByEligibleCustomers(products: Product[], customers: CustomerProfile[]): Product[] {
+    if (!customers?.length) {
+      return products;
+    }
+
+    const eligibleCustomerIds = new Set(
+      customers.filter((c) => (c.points ?? 0) > 1).map((customer) => customer.id)
+    );
+
+    return products.filter((product) => {
+      if (!product.createdById) return true;
+      return eligibleCustomerIds.has(product.createdById);
+    });
   }
 }

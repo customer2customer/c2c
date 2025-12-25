@@ -28,7 +28,8 @@ export class ProductRequestsComponent {
     { value: 'homemade', label: 'Homemade' }
   ];
 
-  status: 'idle' | 'saving' | 'error' | 'loading' = 'idle';
+  loading = false;
+  hasError = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -55,7 +56,8 @@ export class ProductRequestsComponent {
       this.form.markAllAsTouched();
       return;
     }
-    this.status = 'saving';
+    this.loading = true;
+    this.hasError = false;
     try {
       await this.requestService.create({
         title: this.form.value.title ?? '',
@@ -66,46 +68,45 @@ export class ProductRequestsComponent {
         requesterEmail: user.email
       });
       this.form.reset({ category: 'general' });
-      this.status = 'idle';
     } catch (error) {
       console.error(error);
-      this.status = 'error';
+      this.hasError = true;
+    } finally {
+      this.loading = false;
     }
   }
 
   loadSamples(): void {
-    this.status = 'loading';
+    this.loading = true;
+    this.hasError = false;
     this.requestService
       .loadSamples()
       .pipe(
         catchError((error) => {
           console.error(error);
-          this.status = 'error';
+          this.hasError = true;
           return of(void 0);
         }),
         finalize(() => {
-          if (this.status === 'loading') {
-            this.status = 'idle';
-          }
+          this.loading = false;
         })
       )
       .subscribe();
   }
 
   clearAll(): void {
-    this.status = 'loading';
+    this.loading = true;
+    this.hasError = false;
     this.requestService
       .clear()
       .pipe(
         catchError((error) => {
           console.error(error);
-          this.status = 'error';
+          this.hasError = true;
           return of(void 0);
         }),
         finalize(() => {
-          if (this.status === 'loading') {
-            this.status = 'idle';
-          }
+          this.loading = false;
         })
       )
       .subscribe();
@@ -114,13 +115,15 @@ export class ProductRequestsComponent {
   async update(request: ProductRequest): Promise<void> {
     const user = await firstValueFrom(this.currentUser$);
     if (!user || user.id !== request.requesterId) return;
-    this.status = 'saving';
+    this.loading = true;
+    this.hasError = false;
     try {
       await this.requestService.update({ ...request, approved: false });
-      this.status = 'idle';
     } catch (error) {
       console.error(error);
-      this.status = 'error';
+      this.hasError = true;
+    } finally {
+      this.loading = false;
     }
   }
 }
