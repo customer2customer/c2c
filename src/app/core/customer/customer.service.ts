@@ -23,10 +23,17 @@ export class CustomerService {
     const firestore = this.firebase.getFirestore();
     this.collectionRef = collection(firestore, 'customers');
 
-    onSnapshot(this.collectionRef, (snapshot) => {
-      const customers = snapshot.docs.map((docSnap) => this.normalize({ id: docSnap.id, ...docSnap.data() }));
-      this.customers$.next(customers);
-    });
+    onSnapshot(
+      this.collectionRef,
+      (snapshot) => {
+        const customers = snapshot.docs.map((docSnap) => this.normalize({ id: docSnap.id, ...docSnap.data() }));
+        this.customers$.next(customers);
+      },
+      (error) => {
+        console.error('Customers listener failed, clearing cache', error);
+        this.customers$.next([]);
+      }
+    );
   }
 
   getCustomers(): Observable<CustomerProfile[]> {

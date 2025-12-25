@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { firstValueFrom, map, of, switchMap } from 'rxjs';
+import { catchError, finalize, firstValueFrom, map, of, switchMap } from 'rxjs';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { ProductRequestService } from './services/product-request.service';
 import { ProductRequest } from '../../shared/models/product-request.model';
@@ -77,12 +77,38 @@ export class ProductRequestsComponent {
     this.status = 'loading';
     this.requestService
       .loadSamples()
-      .subscribe({ next: () => (this.status = 'idle'), error: () => (this.status = 'error') });
+      .pipe(
+        catchError((error) => {
+          console.error(error);
+          this.status = 'error';
+          return of(void 0);
+        }),
+        finalize(() => {
+          if (this.status === 'loading') {
+            this.status = 'idle';
+          }
+        })
+      )
+      .subscribe();
   }
 
   clearAll(): void {
     this.status = 'loading';
-    this.requestService.clear().subscribe({ next: () => (this.status = 'idle'), error: () => (this.status = 'error') });
+    this.requestService
+      .clear()
+      .pipe(
+        catchError((error) => {
+          console.error(error);
+          this.status = 'error';
+          return of(void 0);
+        }),
+        finalize(() => {
+          if (this.status === 'loading') {
+            this.status = 'idle';
+          }
+        })
+      )
+      .subscribe();
   }
 
   async update(request: ProductRequest): Promise<void> {
